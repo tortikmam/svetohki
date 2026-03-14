@@ -1,5 +1,5 @@
 # svetohki
 
-'''python
+```python
 print(hello world!)
-'''
+```
