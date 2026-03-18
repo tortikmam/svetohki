@@ -1,4 +1,4 @@
-Чтобы запустить заходишь в Docker Desktop и делаешь это:
+Чтобы запустить заходишь в Docker Desktop в каталог где у тебя лежат файлы и делаешь это:
 <img width="542" height="68" alt="image" src="https://github.com/user-attachments/assets/e742855b-966f-4048-b7bc-0dff205d425f" />
 
 Потом заходим в VSCode как мы делаем на БД у Брагина и пишем это:
