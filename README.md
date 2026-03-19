@@ -5,3 +5,8 @@
 <img width="487" height="432" alt="image" src="https://github.com/user-attachments/assets/1dcda171-405a-4bc6-bc24-92b21757b6eb" />
 
 Готово.
+
+```
+чтобы компилировать main.cpp
+-> g++ -std=c++17 main.cpp -o api_client -I/opt/homebrew/Cellar/nlohmann-json/3.12.0/include -lcurl
+```
