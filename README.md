@@ -1,6 +1,8 @@
 
 чтобы компилировать main.cpp
+```
 g++ -std=c++17 main.cpp -o api_client -lcurl```
+```
 файл компилируется в api_client,
 чтобы его запустить, пишите 
 
