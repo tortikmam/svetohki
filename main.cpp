@@ -9,188 +9,150 @@
 using namespace std;
 using json = nlohmann::json;
 
-// функция записи данных полученных от curl в строку
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t totalSize = size * nmemb;
     ((string*)userp)->append((char*)contents, totalSize);
     return totalSize;
 }
-//класс для работы с API 
+
 class APIClient {
-private: // базовый URL и токен для доступа к API
+private:
     string baseUrl;
     string token;
-
-public: // конструктор для инициализации токена и базового URL
-    APIClient(const string& api_token, const string& url = "https://trefle.io/api/v1")     
+public:
+    APIClient(const string& api_token, const string& url = "https://trefle.io/api/v1") 
         : token(api_token), baseUrl(url) {}
 
-    json fetchData(const string& endpoint) { // функция для получения данных с API
-        CURL* curl = curl_easy_init();
-        CURLcode res;
+    json fetchData(const string& endpoint) {
         string responseString;
+        CURL* curl = curl_easy_init();
+        if(!curl) return json::object();
 
-        curl_global_init(CURL_GLOBAL_DEFAULT);
-        curl = curl_easy_init();
+        string url = baseUrl + endpoint;
+        url += (endpoint.find('?') == string::npos ? "?token=" : "&token=") + token;
 
-        if(curl) { // формируем полный URL для запроса
-            string url = baseUrl + endpoint;
-            if (endpoint.find('?') == string::npos) {
-                url += "?token=" + token;
-            } else {
-                url += "&token=" + token;
-            }
-            cout << "Request URL: " << url << endl;
-            // Настраиваем curl для выполнения GET запроса
-            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseString);
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
-            // Устанавливаем заголовки для запроса
-            struct curl_slist* headers = nullptr;
-            headers = curl_slist_append(headers, "Accept: application/json");
-            headers = curl_slist_append(headers, "Content-Type: application/json");
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseString);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
-            res = curl_easy_perform(curl);
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
 
-            if(res != CURLE_OK) { 
-                cerr << "curl - error " << curl_easy_strerror(res) << endl;
-                curl_slist_free_all(headers);
-                curl_easy_cleanup(curl);
-                curl_global_cleanup();
-                return json::object();
-            }
-
-            long http_code = 0;
-            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-            cout << "HTTP Status Code: " << http_code << endl;
-            
-            curl_slist_free_all(headers); 
-            curl_easy_cleanup(curl); 
-        }
-
-        curl_global_cleanup(); 
+        if(res != CURLE_OK) return json::object();
         try {
-            json data = json::parse(responseString);
-            return data;
-        } catch (const exception& e) {
-            cerr << "JSON parse error: " << e.what() << endl;
-            cerr << "Response: " << responseString << endl;
-            return json::object();
-        }
-    }
-    // функции для получения данных о растениях с API
-    json getPlants(int page = 1) { // функция для получения списка растений с определенной страницы
-        return fetchData("/plants?page=" + to_string(page));
+            return json::parse(responseString);
+        } catch (...) { return json::object(); }
     }
 
-    json getPlantById(int id) { // функция для получения данных о конкретном растении по его ID
-        return fetchData("/plants/" + to_string(id));
+    json getPlants(int page) { 
+        return fetchData("/plants?page=" + to_string(page)); 
     }
-
-    json searchPlants(const string& query) { // функция для поиска растений по запросу
-        return fetchData("/plants/search?q=" + query);
-    }
+    
+    json getPlantById(int id) { return fetchData("/plants/" + to_string(id)); }
 };
 
-json getAllPlants(APIClient& client, int maxPages = 5) { // функция для получения всех растений с определенного количества страниц
-    json allData = json::array();
-    
-    cout << "started receive data" << endl;
-    
-    for (int page = 1; page <= maxPages; page++) {
-        cout << "load page " << page << "..." << endl;
-        
-        json pageData = client.getPlants(page);
-        
-        if (!pageData.empty() && pageData.contains("data")) {
-            for (const auto& plant : pageData["data"]) {
-                allData.push_back(plant);
-            }
-            cout << "  -> received " << pageData["data"].size() 
-                      << " plants total: " << allData.size() << endl;
+json extract_deg_c(const json& growth_obj, const string& key) {
+    if (growth_obj.is_object() && growth_obj.contains(key) && growth_obj[key].is_object()) {
+        if (growth_obj[key].contains("deg_c") && !growth_obj[key]["deg_c"].is_null()) {
+            return growth_obj[key]["deg_c"];
         }
     }
-    // формируем итоговый JSON объект, который содержит массив всех растений и метаинформацию о количестве полученных данных и страницах
-    json result;
-    result["data"] = allData;
-    result["meta"]["total"] = allData.size();
-    result["meta"]["pages_downloaded"] = maxPages;
-    
-    cout << "total received: " << allData.size() << " plants" << endl;
-    return result;
+    return nullptr;
 }
 
-int main() { // берем из API данные о растениях по моему токену
-
+int main() {
     string token;
-    ifstream file("token.txt");
-    if (file.is_open()) {
-        getline(file, token);
-        if (!token.empty() && token.back() == '\r') token.pop_back();
-        file.close();
+    ifstream tokenFile("token.txt");
+    if (tokenFile.is_open()) {
+        getline(tokenFile, token);
+        tokenFile.close();
     } else {
-        cerr << "Error: token.txt not found!" << endl;
-        curl_global_cleanup();
-        return 1;
-    }
-
-    if (token.empty()) {
-        cerr << "Error: Token is empty!" << endl;
-        curl_global_cleanup();
+        cerr << "Ошибка: token.txt не найден!" << endl;
         return 1;
     }
 
     APIClient client(token);
-    cout << "get data from API" << endl; 
-    json plants = getAllPlants(client, 20);
-
-    if(!plants.empty() && plants.contains("data")){ 
-        cout << "data received:" << endl;
-        cout << "found plants: " << plants["data"].size() << endl;
-
-        for (auto& plant : plants["data"]) {
-            if (plant.contains("synonyms")) {
-                plant.erase("synonyms");
-            }
-        }
-
-        int count = 0;
-        for (const auto& plant : plants["data"]) {
-            if (count >= 100) break;
-
-            cout << "\nPlant " << count + 1 << ":" << endl;
-            // эти штуки нужны чтобы вывелось только то, что есть, а не "null" или "[]"
-            if (plant.contains("common_name") && !plant["common_name"].is_null())
-                cout << " common_name: " << plant["common_name"] << endl;
-            if (plant.contains("scientific_name") && !plant["scientific_name"].is_null())
-                cout << " scientific_name: " << plant["scientific_name"] << endl;
-            if (plant.contains("family") && !plant["family"].is_null()) 
-                cout << " family: " << plant["family"] << endl;
-            if (plant.contains("image_url") && !plant["image_url"].is_null())
-                cout << " image_url: " << plant["image_url"] << endl;
-            if (plant.contains("ph_minimum") && !plant["ph_minimum"].is_null())
-                cout << " ph_minimum: " << plant["ph_minimum"] << endl;
-            if (plant.contains("ph_maximum") && !plant["ph_maximum"].is_null())
-                cout << " ph_maximum: " << plant["ph_maximum"] << endl;
-            
-            count++;
-        }
-        
-        ofstream outFile("plants.json"); //запись полученных данных в файл plants.json
-        if (outFile.is_open()) {
-            outFile << plants.dump(4);
-            outFile.close();
-            cout << "\ndata saved to plants.json (" << plants["data"].size() << " plants)" << endl;
-        } else {
-            cerr << "error opening file for writing" << endl;
-        }
-    } else {
-        cout << "no data received" << endl;
-    }
+    json all_plants_array = json::array();
     
+    int count = 0;
+    int targetCount = 60; 
+    int currentPage = 1;
+
+    cout << "--- ЗАПУСК СТАБИЛЬНОГО СБОРА ---" << endl;
+
+    while (count < targetCount) {
+        cout << "\n[СТРАНИЦА " << currentPage << "]" << endl;
+        json listResponse = client.getPlants(currentPage);
+
+        if (!listResponse.contains("data") || !listResponse["data"].is_array() || listResponse["data"].empty()) {
+            cout << "База Trefle закончилась." << endl;
+            break; 
+        }
+
+        for (const auto& item : listResponse["data"]) {
+            if (count >= targetCount) break;
+
+            int trefle_id = item.value("id", 0);
+            if (trefle_id == 0) continue;
+
+            json detail = client.getPlantById(trefle_id);
+            if (detail.empty() || !detail.contains("data")) continue;
+
+            const auto& d = detail["data"];
+            json growth = json::object();
+            
+            if (d.contains("main_species") && d["main_species"].is_object()) {
+                if (d["main_species"].contains("growth") && d["main_species"]["growth"].is_object()) {
+                    growth = d["main_species"]["growth"];
+                }
+            }
+
+            auto t_min = extract_deg_c(growth, "minimum_temperature");
+            auto ph_min = growth.value("ph_minimum", json(nullptr));
+
+            if (t_min.is_null() && ph_min.is_null()) continue; 
+
+            json p;
+            p["trefle_id"] = trefle_id;
+            
+            p["name_ru"] = item.value("common_name", "");
+            p["name_latin"] = item.value("scientific_name", "Unknown");
+            p["family"] = item.value("family", "");
+            p["genus"] = item.value("genus", "");
+            p["image_url"] = item.value("image_url", "");
+
+            p["temp_min_c"] = t_min;
+            p["temp_max_c"] = extract_deg_c(growth, "maximum_temperature");
+            p["ph_min"] = ph_min;
+            p["ph_max"] = growth.value("ph_maximum", json(nullptr));
+            p["light_level"] = growth.value("light", json(nullptr));
+            p["humidity"] = growth.value("atmospheric_humidity", json(nullptr));
+            
+            if (d.contains("main_species") && d["main_species"].is_object()) {
+                p["toxicity"] = d["main_species"].value("toxicity", json(nullptr));
+            } else {
+                p["toxicity"] = nullptr;
+            }
+            p["user_notes"] = "";
+
+            all_plants_array.push_back(p);
+            count++;
+            
+            cout << "  [" << count << "/" << targetCount << "] OK: " 
+                 << p.value("name_latin", "Unknown") << " (ID: " << trefle_id << ")" << endl;
+
+            this_thread::sleep_for(chrono::milliseconds(100));
+        }
+        currentPage++; 
+    }
+
+    ofstream outFile("plants.json");
+    if (outFile.is_open()) {
+        outFile << all_plants_array.dump(4);
+        cout << "\n--- ГОТОВО: " << count << " растений в plants.json ---" << endl;
+    }
+
     return 0;
 }
