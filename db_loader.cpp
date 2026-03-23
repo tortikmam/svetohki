@@ -9,7 +9,6 @@ using json = nlohmann::json;
 
 int main() {
     try {
-        // 1. Читаем JSON файл
         ifstream inFile("plants.json");
         if (!inFile.is_open()) {
             cerr << "Error: Could not open plants.json!" << endl;
