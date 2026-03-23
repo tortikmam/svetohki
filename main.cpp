@@ -1,177 +1,157 @@
 #include <iostream>
-#include <nlohmann/json.hpp>
-#include <curl/curl.h>
 #include <string>
+#include <vector>
 #include <fstream>
 #include <thread>
 #include <chrono>
+#include <curl/curl.h>
+#include "json.hpp"
 
+using namespace std;
 using json = nlohmann::json;
 
-// функция записи данных полученных от curl в строку
+// Callback для записи данных от CURL в строку
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t totalSize = size * nmemb;
-    ((std::string*)userp)->append((char*)contents, totalSize);
+    static_cast<std::string*>(userp)->append(static_cast<char*>(contents), totalSize);
     return totalSize;
 }
-//класс для работы с API 
-class APIClient {
-private: // базовый URL и токен для доступа к API
-    std::string baseUrl;
-    std::string token;
 
-public: // конструктор для инициализации токена и базового URL
-    APIClient(const std::string& api_token, const std::string& url = "https://trefle.io/api/v1")     
+class APIClient {
+private:
+    string baseUrl;
+    string token;
+
+public:
+    APIClient(const string& api_token, const string& url = "https://trefle.io/api/v1") 
         : token(api_token), baseUrl(url) {}
 
-    json fetchData(const std::string& endpoint) { // функция для получения данных с API
+    json fetchData(const string& endpoint) {
         CURL* curl = curl_easy_init();
-        CURLcode res;
-        std::string responseString;
+        string responseString;
 
-        curl_global_init(CURL_GLOBAL_DEFAULT);
-        curl = curl_easy_init();
+        if (curl) {
+            string url = baseUrl + endpoint;
+            url += (endpoint.find('?') == string::npos ? "?token=" : "&token=") + token;
 
-        if(curl) { // формируем полный URL для запроса
-            std::string url = baseUrl + endpoint;
-            if (endpoint.find('?') == std::string::npos) {
-                url += "?token=" + token;
-            } else {
-                url += "&token=" + token;
-            }
-            std::cout << "Request URL: " << url << std::endl;
-            // Настраиваем curl для выполнения GET запроса
+            // Настройки для стабильности в WSL
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseString);
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
-            // Устанавливаем заголовки для запроса
+            
+            // КРИТИЧНО: Представляемся браузером и форсируем IPv4
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // Отключаем проверку SSL если нет сертификатов
+            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 20L);
+
             struct curl_slist* headers = nullptr;
             headers = curl_slist_append(headers, "Accept: application/json");
-            headers = curl_slist_append(headers, "Content-Type: application/json");
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+            curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+            curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "gzip, deflate");
 
-            res = curl_easy_perform(curl);
+            CURLcode res = curl_easy_perform(curl);
 
-            if(res != CURLE_OK) { 
-                std::cerr << "curl - error " << curl_easy_strerror(res) << std::endl;
+            if (res != CURLE_OK) {
+                cerr << "CURL error: " << curl_easy_strerror(res) << endl;
                 curl_slist_free_all(headers);
                 curl_easy_cleanup(curl);
-                curl_global_cleanup();
                 return json::object();
             }
 
-            long http_code = 0;
-            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-            std::cout << "HTTP Status Code: " << http_code << std::endl;
-            
-            curl_slist_free_all(headers); 
-            curl_easy_cleanup(curl); 
+            curl_slist_free_all(headers);
+            curl_easy_cleanup(curl);
         }
 
-        curl_global_cleanup(); 
         try {
-            json data = json::parse(responseString);
-            return data;
-        } catch (const std::exception& e) {
-            std::cerr << "JSON parse error: " << e.what() << std::endl;
-            std::cerr << "Response: " << responseString << std::endl;
+            if (responseString.empty()) return json::object();
+            return json::parse(responseString);
+        } catch (const exception& e) {
+            cerr << "JSON Parse error: " << e.what() << endl;
             return json::object();
         }
     }
-    // функции для получения данных о растениях с API
-    json getPlants(int page = 1) { // функция для получения списка растений с определенной страницы
-        return fetchData("/plants?page=" + std::to_string(page));
-    }
 
-    json getPlantById(int id) { // функция для получения данных о конкретном растении по его ID
-        return fetchData("/plants/" + std::to_string(id));
-    }
-
-    json searchPlants(const std::string& query) { // функция для поиска растений по запросу
-        return fetchData("/plants/search?q=" + query);
+    json getPlants(int page = 1) {
+        return fetchData("/plants?page=" + to_string(page));
     }
 };
 
-json getAllPlants(APIClient& client, int maxPages = 5) { // функция для получения всех растений с определенного количества страниц
+json getAllPlants(APIClient& client, int maxPages = 5) {
     json allData = json::array();
-    
-    std::cout << "started receive data" << std::endl;
-    
+    cout << "Starting data collection..." << endl;
+
     for (int page = 1; page <= maxPages; page++) {
-        std::cout << "load page " << page << "..." << std::endl;
-        
+        cout << "Loading page " << page << "... ";
         json pageData = client.getPlants(page);
-        
-        if (!pageData.empty() && pageData.contains("data")) {
+
+        if (!pageData.empty() && pageData.contains("data") && pageData["data"].is_array()) {
             for (const auto& plant : pageData["data"]) {
                 allData.push_back(plant);
             }
-            std::cout << "  -> received " << pageData["data"].size() 
-                      << " plants total: " << allData.size() << std::endl;
+            cout << "Done. Total: " << allData.size() << " plants." << endl;
+        } else {
+            cout << "Failed or empty." << endl;
+            break; 
         }
+        // Небольшая пауза, чтобы API не ругалось на лимиты
+        this_thread::sleep_for(chrono::milliseconds(200));
     }
-    // формируем итоговый JSON объект, который содержит массив всех растений и метаинформацию о количестве полученных данных и страницах
+
     json result;
     result["data"] = allData;
-    result["meta"]["total"] = allData.size();
-    result["meta"]["pages_downloaded"] = maxPages;
-    
-    std::cout << "total received: " << allData.size() << " plants" << std::endl;
+    result["meta"]["total_downloaded"] = allData.size();
     return result;
 }
 
-int main() { // берем из API данные о растениях по моему токену
-    APIClient client("usr-jVbAaSE1s0aXz2EP729tqHDxNBJ0lm8gaPDNNoRww6Y");
+int main() {
+    // 1. Глобальная инициализация один раз
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+
+    string token;
+    ifstream file("token.txt");
+    if (file.is_open()) {
+        getline(file, token);
+        if (!token.empty() && token.back() == '\r') token.pop_back();
+        file.close();
+    } else {
+        cerr << "Error: token.txt not found!" << endl;
+        curl_global_cleanup();
+        return 1;
+    }
+
+    if (token.empty()) {
+        cerr << "Error: Token is empty!" << endl;
+        curl_global_cleanup();
+        return 1;
+    }
+
+    APIClient client(token);
     
-    std::cout << "get data from API" << std::endl; 
-    json plants = getAllPlants(client, 20);
+    // Загружаем, скажем, 3 страницы для теста
+    json plants = getAllPlants(client, 3);
 
-    if(!plants.empty() && plants.contains("data")){ 
-        std::cout << "data received:" << std::endl;
-        std::cout << "found plants: " << plants["data"].size() << std::endl;
-
+    if (!plants["data"].empty()) {
+        // Очистка данных перед сохранением (убираем синонимы, если они тяжелые)
         for (auto& plant : plants["data"]) {
-            if (plant.contains("synonyms")) {
-                plant.erase("synonyms");
-            }
+            if (plant.contains("synonyms")) plant.erase("synonyms");
         }
 
-        int count = 0;
-        for (const auto& plant : plants["data"]) {
-            if (count >= 100) break;
-
-            std::cout << "\nPlant " << count + 1 << ":" << std::endl;
-            // эти штуки нужны чтобы вывелось только то, что есть, а не "null" или "[]"
-            if (plant.contains("common_name") && !plant["common_name"].is_null())
-                std::cout << " common_name: " << plant["common_name"] << std::endl;
-            if (plant.contains("scientific_name") && !plant["scientific_name"].is_null())
-                std::cout << " scientific_name: " << plant["scientific_name"] << std::endl;
-            if (plant.contains("family") && !plant["family"].is_null()) 
-                std::cout << " family: " << plant["family"] << std::endl;
-            if (plant.contains("image_url") && !plant["image_url"].is_null())
-                std::cout << " image_url: " << plant["image_url"] << std::endl;
-            if (plant.contains("ph_minimum") && !plant["ph_minimum"].is_null())
-                std::cout << " ph_minimum: " << plant["ph_minimum"] << std::endl;
-            if (plant.contains("ph_maximum") && !plant["ph_maximum"].is_null())
-                std::cout << " ph_maximum: " << plant["ph_maximum"] << std::endl;
-            
-            count++;
-        }
-        
-        std::ofstream outFile("plants.json"); //запись полученных данных в файл plants.json
+        // Сохранение в файл
+        ofstream outFile("plants.json");
         if (outFile.is_open()) {
             outFile << plants.dump(4);
             outFile.close();
-            std::cout << "\ndata saved to plants.json (" << plants["data"].size() << " plants)" << std::endl;
-        } else {
-            std::cerr << "error opening file for writing" << std::endl;
+            cout << "\nSUCCESS: Saved " << plants["data"].size() << " plants to plants.json" << endl;
         }
     } else {
-        std::cout << "no data received" << std::endl;
+        cout << "\nNo data to save." << endl;
     }
-    
+
+    // 2. Глобальная очистка в самом конце
+    curl_global_cleanup();
     return 0;
 }
