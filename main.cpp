@@ -125,6 +125,7 @@ json getAllPlants(APIClient& client, int maxPages = 5) { // функция дл�
 }
 
 int main() { // берем из API данные о растениях по моему токену
+
     string token;
     ifstream file("token.txt");
     if (file.is_open()) {
@@ -144,9 +145,8 @@ int main() { // берем из API данные о растениях по мо
     }
 
     APIClient client(token);
-
     cout << "get data from API" << endl; 
-    json plants = getAllPlants(client, 1);
+    json plants = getAllPlants(client, 20);
 
     if(!plants.empty() && plants.contains("data")){ 
         cout << "data received:" << endl;
