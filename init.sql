@@ -25,3 +25,7 @@ CREATE TABLE flowers_technical (
         REFERENCES flowers_base(id)
         ON DELETE CASCADE
 );
+
+CREATE USER myuser WITH PASSWORD 'mypassword';
+CREATE DATABASE flowers_db;
+GRANT ALL PRIVILEGES ON DATABASE flowers_db TO myuser;

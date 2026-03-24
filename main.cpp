@@ -9,7 +9,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) { // size_t - беззнаковый целочисленный тип для размеров
     size_t totalSize = size * nmemb;
     ((string*)userp)->append((char*)contents, totalSize);
     return totalSize;
@@ -20,8 +20,11 @@ private:
     string baseUrl;
     string token;
 public:
-    APIClient(const string& api_token, const string& url = "https://trefle.io/api/v1") 
-        : token(api_token), baseUrl(url) {}
+    APIClient(const string& api_token, const string& url = "https://trefle.io/api/v1"){
+        //: token(api_token), baseUrl(url) {}
+        token = api_token;
+        baseUrl = url;
+    };
 
     json fetchData(const string& endpoint) {
         string responseString;
@@ -29,10 +32,10 @@ public:
         if(!curl) return json::object();
 
         string url = baseUrl + endpoint;
-        url += (endpoint.find('?') == string::npos ? "?token=" : "&token=") + token;
+        url += (endpoint.find('?') == string::npos ? "?token=" : "&token=") + token; // сделать циклом надо
 
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // нужно чтобы библиотека понимала какой URL запрашивать
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback); // нужно чтобы библиотека знала какую функцию вызывать для обработки ответа от сервера и записи
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseString);
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
