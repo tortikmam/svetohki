@@ -18,8 +18,8 @@ int main() {
         json all_plants;
         inFile >> all_plants;
         inFile.close();
-
-        pqxx::connection C("dbname=flowers_db user=myuser password=mypassword host=localhost port=5432");
+        const char* env_conn = getenv("DATABASE_URL");
+        pqxx::connection C(env_conn ? env_conn : "dbname=flowers_db user=myuser password=mypassword host=localhost port=5432");
         pqxx::work W(C);
 
         cout << "Connected to database. Processing " << all_plants.size() << " records..." << endl;
