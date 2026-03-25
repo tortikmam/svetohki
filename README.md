@@ -1,22 +1,6 @@
-# svetohki
+Сортировку и бинарный поиск выполняем по столбцу name_ru(который по факту просто название растение, не научное)
+Внутри search.cpp лежат реализации функции сортировки и бинарного поиска. all.cpp - будущий файлик для сортировки, бинарного поиска и ДОПа.
 
-```python
-print(hello world!)
-```
-```python
-print(SOSITE PISU!)
-```
+в wsl: g++ -std=c++17 all.cpp sort_search.cpp dop.cpp -o lab_app -I/opt/homebrew/include -L/opt/homebrew/lib -lpqxx -lpq
 
-
-
-
-
-
-
-
-⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨
-<p align="center">
-  <img src="flower.jpg" alt="flower" width="500">
-</p>
-⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨✧⍨
-
+Запустить: ./lab_app
