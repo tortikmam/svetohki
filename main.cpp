@@ -5,11 +5,15 @@
 #include <fstream>
 #include <thread>
 #include <chrono>
+#include <vector>
+
+#include "sort_search.h"
+#include "dop_tree.h" // Добавили заголовок дерева
 
 using namespace std;
 using json = nlohmann::json;
 
-size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) { // size_t - беззнаковый целочисленный тип для размеров
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t totalSize = size * nmemb;
     ((string*)userp)->append((char*)contents, totalSize);
     return totalSize;
@@ -21,7 +25,6 @@ private:
     string token;
 public:
     APIClient(const string& api_token, const string& url = "https://trefle.io/api/v1"){
-        //: token(api_token), baseUrl(url) {}
         token = api_token;
         baseUrl = url;
     };
@@ -32,10 +35,10 @@ public:
         if(!curl) return json::object();
 
         string url = baseUrl + endpoint;
-        url += (endpoint.find('?') == string::npos ? "?token=" : "&token=") + token; // сделать циклом надо
+        url += (endpoint.find('?') == string::npos ? "?token=" : "&token=") + token;
 
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // нужно чтобы библиотека понимала какой URL запрашивать
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback); // нужно чтобы библиотека знала какую функцию вызывать для обработки ответа от сервера и записи
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseString);
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -65,6 +68,26 @@ json extract_deg_c(const json& growth_obj, const string& key) {
     return nullptr;
 }
 
+ // это нужно для того, чтобы не записывать и не подтягивать каждый раз 60 записей
+void loadFromFile(vector<PlantData*>& plants_vector, json& all_plants_array) {
+    ifstream inFile("plants.json");
+    if (inFile.is_open()) {
+        try {
+            inFile >> all_plants_array;
+            for (const auto& item : all_plants_array) {
+                PlantData* p = new PlantData();
+                p->name_ru = item.value("name_ru", "");
+                p->weight = 1; 
+                plants_vector.push_back(p);
+            }
+            cout << "[System] load from plants.json: " << plants_vector.size() << " plants. " << endl;
+        } catch (...) {
+            cout << "[System] error reading plants.json or file is empty." << endl;
+        }
+        inFile.close();
+    }
+}
+
 int main() {
     string token;
     ifstream tokenFile("token.txt");
@@ -72,90 +95,183 @@ int main() {
         getline(tokenFile, token);
         tokenFile.close();
     } else {
-        cerr << "Ошибка: token.txt не найден!" << endl;
+        cerr << "error: token.txt not found!" << endl;
         return 1;
     }
 
+    bool isSorted = false;
+
     APIClient client(token);
+    vector<PlantData*> plants_vector; 
     json all_plants_array = json::array();
+    DOPNode* rootDOP = nullptr; // Корень для ДОП
     
-    int count = 0;
-    int targetCount = 60; 
-    int currentPage = 1;
+    // проверка наличия файла при запуске
+    loadFromFile(plants_vector, all_plants_array);
 
-    cout << "--- ЗАПУСК СТАБИЛЬНОГО СБОРА ---" << endl;
+    int choice = -1;
+    while (choice != 0) {
+        bool hasData = !plants_vector.empty();
 
-    while (count < targetCount) {
-        cout << "\n[СТРАНИЦА " << currentPage << "]" << endl;
-        json listResponse = client.getPlants(currentPage);
-
-        if (!listResponse.contains("data") || !listResponse["data"].is_array() || listResponse["data"].empty()) {
-            cout << "База Trefle закончилась." << endl;
-            break; 
+        cout << "\n- - - - - menu - - - - -" << endl;
+        cout << " " << endl;
+        cout << "1. get new data from trefle API" << endl;
+        if (hasData) {
+            cout << "2. execute sort" << endl;
+            cout << "3. binary search" << endl;
+            cout << "4. withdraw all plants" << endl;
+            cout << "5. DOP tree" << endl;
+        } else {
+            cout << "[data not load, need to load data (1st option)]" << endl;
         }
+        cout << "0. exit" << endl;
+        cout << " " << endl;
+        cout << "- - - - - - - - - -" << endl;
+        cout << " " << endl;
+        cout << "choose an option: ";
+        
+        if (!(cin >> choice)) { cin.clear(); cin.ignore(10000, '\n'); continue; }
 
-        for (const auto& item : listResponse["data"]) {
-            if (count >= targetCount) break;
+        switch (choice) {
+            case 1: {
+                for (auto p : plants_vector) delete p;
+                plants_vector.clear();
+                all_plants_array = json::array();
 
-            int trefle_id = item.value("id", 0);
-            if (trefle_id == 0) continue;
+                isSorted = false;
 
-            json detail = client.getPlantById(trefle_id);
-            if (detail.empty() || !detail.contains("data")) continue;
+                int count = 0;
+                int targetCount = 60; 
+                int currentPage = 1;
 
-            const auto& d = detail["data"];
-            json growth = json::object();
-            
-            if (d.contains("main_species") && d["main_species"].is_object()) {
-                if (d["main_species"].contains("growth") && d["main_species"]["growth"].is_object()) {
-                    growth = d["main_species"]["growth"];
+                while (count < targetCount) {
+                    json listResponse = client.getPlants(currentPage);
+                    if (!listResponse.contains("data") || listResponse["data"].empty()) break;
+
+                    for (const auto& item : listResponse["data"]) {
+                        if (count >= targetCount) break;
+                        int trefle_id = item.value("id", 0);
+                        json detail = client.getPlantById(trefle_id);
+                        if (detail.empty() || !detail.contains("data")) continue;
+
+                        const auto& d = detail["data"];
+                        json growth = (d.contains("main_species") && d["main_species"].is_object() && d["main_species"].contains("growth")) 
+                                      ? d["main_species"]["growth"] : json::object();
+
+                        auto t_min = extract_deg_c(growth, "minimum_temperature");
+                        auto ph_min = growth.value("ph_minimum", json(nullptr));
+                        if (t_min.is_null() && ph_min.is_null()) continue;
+
+                        // Формируем JSON
+                        json p;
+                        p["trefle_id"] = trefle_id;
+                        p["name_ru"] = item.value("common_name", "");
+                        p["name_latin"] = item.value("scientific_name", "Unknown");
+                        p["family"] = item.value("family", "");
+                        p["genus"] = item.value("genus", "");
+                        p["temp_min_c"] = t_min;
+                        p["temp_max_c"] = extract_deg_c(growth, "maximum_temperature");
+                        p["ph_min"] = ph_min;
+                        p["ph_max"] = growth.value("ph_maximum", json(nullptr));
+                        
+                        all_plants_array.push_back(p);
+
+                        PlantData* p_data = new PlantData();
+                        p_data->name_ru = p["name_ru"];
+                        p_data->weight = (int)p_data->name_ru.length() + 1; // Устанавливаем вес
+                        plants_vector.push_back(p_data);
+
+                        count++;
+                        cout << "  [" << count << "/" << targetCount << "] OK: " << p["name_latin"] << " (ID: " << trefle_id << ")" << endl;
+                        this_thread::sleep_for(chrono::milliseconds(50));
+                    }
+                    currentPage++;
                 }
+                // тут сохранение как было в прошлой версии, сразу при получении записей
+                ofstream outFile("plants.json");
+                outFile << all_plants_array.dump(4);
+                outFile.close();
+                cout << "data saved to plants.json" << endl;
+                break;
             }
 
-            auto t_min = extract_deg_c(growth, "minimum_temperature");
-            auto ph_min = growth.value("ph_minimum", json(nullptr));
-
-            if (t_min.is_null() && ph_min.is_null()) continue; 
-
-            json p;
-            p["trefle_id"] = trefle_id;
-            
-            p["name_ru"] = item.value("common_name", "");
-            p["name_latin"] = item.value("scientific_name", "Unknown");
-            p["family"] = item.value("family", "");
-            p["genus"] = item.value("genus", "");
-            p["image_url"] = item.value("image_url", "");
-
-            p["temp_min_c"] = t_min;
-            p["temp_max_c"] = extract_deg_c(growth, "maximum_temperature");
-            p["ph_min"] = ph_min;
-            p["ph_max"] = growth.value("ph_maximum", json(nullptr));
-            p["light_level"] = growth.value("light", json(nullptr));
-            p["humidity"] = growth.value("atmospheric_humidity", json(nullptr));
-            
-            if (d.contains("main_species") && d["main_species"].is_object()) {
-                p["toxicity"] = d["main_species"].value("toxicity", json(nullptr));
-            } else {
-                p["toxicity"] = nullptr;
+            case 2: {
+                if (!hasData) break;
+                quickSort(plants_vector, 0, (int)plants_vector.size() - 1, cmpByNameRU);
+                isSorted = true;
+                cout << "sort by name_ru completed" << endl;
+                break;
             }
-            p["user_notes"] = "";
 
-            all_plants_array.push_back(p);
-            count++;
-            
-            cout << "  [" << count << "/" << targetCount << "] OK: " 
-                 << p.value("name_latin", "Unknown") << " (ID: " << trefle_id << ")" << endl;
+            case 3: {
+                if (!hasData) break;
+                string key;
+                cout << "need name_ru for search: ";
+                cin.ignore();
+                getline(cin, key);
 
-            this_thread::sleep_for(chrono::milliseconds(100));
+                int resultIdx = binarySearch(plants_vector, key);
+                if (resultIdx != -1) {
+                    string foundName = plants_vector[resultIdx]->name_ru;
+                    cout << " " << endl;
+                    cout << "\n- - - - - search result - - - - -" << endl;
+                    
+                    for (const auto& j_obj : all_plants_array) {
+                        if (j_obj.value("name_ru", "") == foundName) {
+                            cout << "family:          " << j_obj["family"] << endl;
+                            cout << "genus:           " << j_obj["genus"] << endl;
+                            cout << "name_latin:      " << j_obj["name_latin"] << endl;
+                            cout << "name_ru:         " << j_obj["name_ru"] << endl;
+                            cout << "ph_max:          " << j_obj["ph_max"] << endl;
+                            cout << "ph_min:          " << j_obj["ph_min"] << endl;
+                            cout << "temp_max_c:      " << j_obj["temp_max_c"] << " C" << endl;
+                            cout << "temp_min_c:      " << j_obj["temp_min_c"] << " C" << endl;
+                            cout << "trefle_id:       " << j_obj["trefle_id"] << endl;
+                            break; 
+                        }
+                    }
+
+                } else {
+                    cout << "plant '" << key << "' not found." << endl;
+                }
+                break;
+            }
+            case 4: {
+                if (!hasData) break;
+                for(size_t i=0; i<plants_vector.size(); ++i) 
+                    cout << i+1 << ". " << plants_vector[i]->name_ru << endl;
+                break;
+            }
+            case 5: {
+                if (!hasData) break;
+                
+                if (!isSorted) {
+                    cout << "you must run sort (option 2) before building DOP tree" << endl;
+                    break;
+                }
+                
+                if (rootDOP) clearDOP(rootDOP);
+                rootDOP = buildDOP_A2(plants_vector, 0, (int)plants_vector.size() - 1);
+                cout << " " << endl;
+
+                string key;
+                cout << "DOP search: ";
+                cin.ignore();
+                getline(cin, key);
+
+                DOPNode* found = searchDOP(rootDOP, key);
+                if (found) {
+                    found->data->weight++;
+                    cout << "found: " << found->data->name_ru << " (new weight: " << found->data->weight << ")" << endl;
+                } else {
+                    cout << "not found." << endl;
+                }
+                break;
+            }
         }
-        currentPage++; 
     }
 
-    ofstream outFile("plants.json");
-    if (outFile.is_open()) {
-        outFile << all_plants_array.dump(4);
-        cout << "\n--- ГОТОВО: " << count << " растений в plants.json ---" << endl;
-    }
-
+    if (rootDOP) clearDOP(rootDOP);
+    for (auto p : plants_vector) delete p;
     return 0;
 }
