@@ -118,9 +118,9 @@ int main() {
         cout << "1. get new data from trefle API" << endl;
         if (hasData) {
             cout << "2. execute sort" << endl;
-            cout << "3. binary search" << endl;
-            cout << "4. withdraw all plants" << endl;
-            cout << "5. DOP tree" << endl;
+            // cout << "3. binary search" << endl;
+            cout << "3. withdraw all plants" << endl;
+            cout << "4. DOP tree" << endl;
         } else {
             cout << "[data not load, need to load data (1st option)]" << endl;
         }
@@ -203,68 +203,86 @@ int main() {
                 break;
             }
 
-            case 3: {
-                if (!hasData) break;
-                string key;
-                cout << "need name_ru for search: ";
-                cin.ignore();
-                getline(cin, key);
+            // case 3: {
+            //     if (!hasData) break;
+            //     string key;
+            //     cout << "need name_ru for search: ";
+            //     cin.ignore();
+            //     getline(cin, key);
 
-                int resultIdx = binarySearch(plants_vector, key);
-                if (resultIdx != -1) {
-                    string foundName = plants_vector[resultIdx]->name_ru;
-                    cout << " " << endl;
-                    cout << "\n- - - - - search result - - - - -" << endl;
+            //     int resultIdx = binarySearch(plants_vector, key);
+            //     if (resultIdx != -1) {
+            //         string foundName = plants_vector[resultIdx]->name_ru;
+            //         cout << " " << endl;
+            //         cout << "\n- - - - - search result - - - - -" << endl;
                     
-                    for (const auto& j_obj : all_plants_array) {
-                        if (j_obj.value("name_ru", "") == foundName) {
-                            cout << "family:          " << j_obj["family"] << endl;
-                            cout << "genus:           " << j_obj["genus"] << endl;
-                            cout << "name_latin:      " << j_obj["name_latin"] << endl;
-                            cout << "name_ru:         " << j_obj["name_ru"] << endl;
-                            cout << "ph_max:          " << j_obj["ph_max"] << endl;
-                            cout << "ph_min:          " << j_obj["ph_min"] << endl;
-                            cout << "temp_max_c:      " << j_obj["temp_max_c"] << " C" << endl;
-                            cout << "temp_min_c:      " << j_obj["temp_min_c"] << " C" << endl;
-                            cout << "trefle_id:       " << j_obj["trefle_id"] << endl;
-                            break; 
-                        }
-                    }
+            //         for (const auto& j_obj : all_plants_array) {
+            //             if (j_obj.value("name_ru", "") == foundName) {
+            //                 cout << "family:          " << j_obj["family"] << endl;
+            //                 cout << "genus:           " << j_obj["genus"] << endl;
+            //                 cout << "name_latin:      " << j_obj["name_latin"] << endl;
+            //                 cout << "name_ru:         " << j_obj["name_ru"] << endl;
+            //                 cout << "ph_max:          " << j_obj["ph_max"] << endl;
+            //                 cout << "ph_min:          " << j_obj["ph_min"] << endl;
+            //                 cout << "temp_max_c:      " << j_obj["temp_max_c"] << " C" << endl;
+            //                 cout << "temp_min_c:      " << j_obj["temp_min_c"] << " C" << endl;
+            //                 cout << "trefle_id:       " << j_obj["trefle_id"] << endl;
+            //                 break; 
+            //             }
+            //         }
 
-                } else {
-                    cout << "plant '" << key << "' not found." << endl;
-                }
-                break;
-            }
-            case 4: {
+            //     } else {
+            //         cout << "plant '" << key << "' not found." << endl;
+            //     }
+            //     break;
+            // }
+
+            case 3: {
                 if (!hasData) break;
                 for(size_t i=0; i<plants_vector.size(); ++i) 
                     cout << i+1 << ". " << plants_vector[i]->name_ru << endl;
                 break;
             }
-            case 5: {
+            case 4: {
                 if (!hasData) break;
-                
                 if (!isSorted) {
-                    cout << "you must run sort (option 2) before building DOP tree" << endl;
+                    cout << "you need to sort the data first (option 2)" << endl;
                     break;
                 }
                 
+                // Перестраиваем дерево перед поиском, чтобы учесть новые веса
                 if (rootDOP) clearDOP(rootDOP);
                 rootDOP = buildDOP_A2(plants_vector, 0, (int)plants_vector.size() - 1);
-                cout << " " << endl;
 
                 string key;
                 cout << "DOP search: ";
                 cin.ignore();
                 getline(cin, key);
 
+                // Используем функцию из dop_tree.cpp
                 DOPNode* found = searchDOP(rootDOP, key);
+                
                 if (found) {
                     found->data->weight++;
-                    cout << "found: " << found->data->name_ru << " (new weight: " << found->data->weight << ")" << endl;
+                    string foundName = found->data->name_ru;
+                    
+                    // Выводим всю инфу из JSON, как в пункте 3
+                    cout << "\n- - - DOP search result - - -" << endl;
+                    for (const auto& j_obj : all_plants_array) {
+                        if (j_obj.value("name_ru", "") == foundName) {
+                            cout << "family:          " << j_obj["family"] << endl;
+                            cout << "genus:           " << j_obj["genus"] << endl;
+                            cout << "name_latin:      " << j_obj["name_latin"] << endl;
+                            cout << "name_ru:         " << j_obj["name_ru"] << endl;
+                            cout << "temp_max_c:      " << j_obj["temp_max_c"] << " C" << endl;
+                            cout << "temp_min_c:      " << j_obj["temp_min_c"] << " C" << endl;
+                            cout << "weight:          " << found->data->weight << endl;
+                            break; 
+                        }
+                    }
+
                 } else {
-                    cout << "not found." << endl;
+                    cout << "plant not found in DOP tree." << endl;
                 }
                 break;
             }
