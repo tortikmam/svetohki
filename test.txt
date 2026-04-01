@@ -9,18 +9,16 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "imgui.h"
-
 #include "sort_search.h"
-#include "dop_tree.h"
 
-using namespace std;
+// --- СТРУКТУРЫ ---
 
 struct FlowerBase {
     int id;
-    string name_ru;
-    string name_latin;
-    string family;
-    string genus;
+    std::string name_ru;
+    std::string name_latin;
+    std::string family;
+    std::string genus;
 };
 
 struct FlowerFull : FlowerBase {
@@ -28,61 +26,44 @@ struct FlowerFull : FlowerBase {
     float ph_min, ph_max;
     int light_level;
     int humidity;
-    string toxicity;
-    string user_notes;
-    string created_at;
+    std::string toxicity;
+    std::string user_notes;
+    std::string created_at;
 };
 
 // Глобальные данные
-vector<FlowerBase> base_list;
-map<int, FlowerBase> base_map; 
+std::vector<FlowerBase> base_list;
+std::vector<PlantData*> sortable_list;
+// Карта для быстрого доступа к данным по ID после сортировки
+std::map<int, FlowerBase> base_map; 
 
-vector<PlantData*> sortable_list_ru;  // Для quick
-vector<PlantData*> sortable_list_lat; // Для ДОП 
+// --- ФУНКЦИИ ---
 
-DOPNode* global_dop_root = nullptr; // Корень дерева
-
-void ClearAllData() {
-    for (auto p : sortable_list_ru) delete p;
-    sortable_list_ru.clear();
-    for (auto p : sortable_list_lat) delete p;
-    sortable_list_lat.clear();
-    if (global_dop_root) {
-        clearDOP(global_dop_root); //функция очистки
-        global_dop_root = nullptr;
-    }
-    base_map.clear();
+void ClearSortable() {
+    for (auto p : sortable_list) delete p;
+    sortable_list.clear();
 }
 
 void SyncData() {
-    ClearAllData();
+    ClearSortable();
+    base_map.clear();
     for (const auto& fb : base_list) {
+        // Заполняем карту для таблицы
         base_map[fb.id] = fb;
-        
-        // Данные для quick поиска
-        PlantData* p_ru = new PlantData();
-        p_ru->name_ru = fb.name_ru;
-        p_ru->weight = fb.id;
-        sortable_list_ru.push_back(p_ru);
-
-        // Данные для дерева kладем латынь в name_ru для корректной работы
-        PlantData* p_lat = new PlantData();
-        p_lat->name_ru = fb.name_latin;
-        p_lat->weight = fb.id; 
-        sortable_list_lat.push_back(p_lat);
+        // Заполняем список для алгоритмов
+        PlantData* p = new PlantData();
+        p->name_ru = fb.name_ru;
+        p->weight = fb.id; 
+        sortable_list.push_back(p);
     }
 }
 
-// Компаратор для латыни    
-bool cmpByLatin(const PlantData* a, const PlantData* b) {
-    return a->name_ru < b->name_ru;
-}
-
-void LoadBaseList(vector<FlowerBase>& out_list) {
+void LoadBaseList(std::vector<FlowerBase>& out_list) {
     try {
         pqxx::connection c("host=127.0.0.1 port=5433 dbname=flowers_db user=myuser password=mypassword");
         pqxx::work txn(c);
         pqxx::result r = txn.exec("SELECT id, name_ru, name_latin, family, genus FROM flowers_base ORDER BY id");
+        
         out_list.clear();
         for (auto row : r) {
             out_list.push_back({
@@ -94,7 +75,7 @@ void LoadBaseList(vector<FlowerBase>& out_list) {
             });
         }
         SyncData();
-    } catch (const exception &e) { cerr << "DB Error: " << e.what() << endl; }
+    } catch (const std::exception &e) { std::cerr << "DB Error: " << e.what() << std::endl; }
 }
 
 FlowerFull GetFullDetails(int id) {
@@ -102,8 +83,8 @@ FlowerFull GetFullDetails(int id) {
     try {
         pqxx::connection c("host=127.0.0.1 port=5433 dbname=flowers_db user=myuser password=mypassword");
         pqxx::work txn(c);
-        string sql = "SELECT b.*, t.temp_min_c, t.temp_max_c, t.ph_min, t.ph_max, t.light_level, t.humidity, t.toxicity, t.user_notes "
-                          "FROM flowers_base b LEFT JOIN flowers_technical t ON b.id = t.flower_id WHERE b.id = " + to_string(id);
+        std::string sql = "SELECT b.*, t.temp_min_c, t.temp_max_c, t.ph_min, t.ph_max, t.light_level, t.humidity, t.toxicity, t.user_notes "
+                          "FROM flowers_base b LEFT JOIN flowers_technical t ON b.id = t.flower_id WHERE b.id = " + std::to_string(id);
         pqxx::row row = txn.exec1(sql);
         f.id = row["id"].as<int>();
         f.name_ru = row["name_ru"].is_null() ? "---" : row["name_ru"].c_str();
@@ -125,7 +106,7 @@ FlowerFull GetFullDetails(int id) {
 
 int main(int argc, char *argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) return -1;
-    SDL_Window* window = SDL_CreateWindow("Flower Database & Algorithms", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("Flower DB", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     glewInit();
 
@@ -140,8 +121,7 @@ int main(int argc, char *argv[]) {
     FlowerFull selected_flower;
     bool show_details = false;
     bool running = true;
-    char search_ru[128] = "";
-    char search_lat[128] = "";
+    char search_query[128] = "";
 
     LoadBaseList(base_list);
 
@@ -152,56 +132,35 @@ int main(int argc, char *argv[]) {
             if (event.type == SDL_QUIT) running = false;
         }
 
-        ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplSDL2_NewFrame(); ImGui::NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
         ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_None);
 
-        // --- ОКНО УПРАВЛЕНИЯ ---
-        ImGui::Begin("Алгоритмы и Поиск");
+        // --- ОКНО СПИСКА ---
+        ImGui::Begin("Реестр растений");
         
         if (ImGui::Button("Обновить данные")) LoadBaseList(base_list);
-        
-        ImGui::Separator();
-        ImGui::Text("1. МАССИВ (RU)");
-        if (ImGui::Button("QuickSort по RU")) {
-            if (!sortable_list_ru.empty())
-                quickSort(sortable_list_ru, 0, sortable_list_ru.size() - 1, cmpByNameRU);
+        ImGui::SameLine();
+        if (ImGui::Button("Сортировать по названию")) {
+            if (!sortable_list.empty())
+                quickSort(sortable_list, 0, sortable_list.size() - 1, cmpByNameRU);
         }
-        ImGui::InputText("Имя (RU)", search_ru, IM_ARRAYSIZE(search_ru));
-        if (ImGui::Button("BinarySearch RU")) {
-            quickSort(sortable_list_ru, 0, sortable_list_ru.size() - 1, cmpByNameRU);
-            int idx = binarySearch(sortable_list_ru, search_ru);
+
+        ImGui::Separator();
+        ImGui::InputText("Поиск", search_query, IM_ARRAYSIZE(search_query));
+        ImGui::SameLine();
+        if (ImGui::Button("Найти")) {
+            quickSort(sortable_list, 0, sortable_list.size() - 1, cmpByNameRU);
+            int idx = binarySearch(sortable_list, search_query);
             if (idx != -1) {
-                selected_flower = GetFullDetails(sortable_list_ru[idx]->weight);
+                selected_flower = GetFullDetails(sortable_list[idx]->weight);
                 show_details = true;
             }
         }
-
         ImGui::Separator();
-        ImGui::Text("2. ДОП ДЕРЕВО (Latin)");
-        if (ImGui::Button("Построить дерево А2")) {
-            if (!sortable_list_lat.empty()) {
-                quickSort(sortable_list_lat, 0, sortable_list_lat.size() - 1, cmpByLatin);
-                if (global_dop_root) clearDOP(global_dop_root);
-                global_dop_root = buildDOP_A2(sortable_list_lat, 0, sortable_list_lat.size() - 1);
-            }
-        }
-        ImGui::InputText("Имя (Latin)", search_lat, IM_ARRAYSIZE(search_lat));
-        if (ImGui::Button("Поиск по ДОП")) {
-            if (global_dop_root) {
-                DOPNode* res = searchDOP(global_dop_root, search_lat);
-                if (res) {
-                    selected_flower = GetFullDetails(res->data->weight);
-                    show_details = true;
-                }
-            }
-        }
-        if (global_dop_root) ImGui::TextColored(ImVec4(0, 1, 0, 1), "Дерево активно");
-        else ImGui::TextColored(ImVec4(1, 1, 0, 1), "Дерево не построено");
 
-        ImGui::End();
-
-        // --- ОКНО СПИСКА (ТАБЛИЦА) ---
-        ImGui::Begin("Реестр растений");
+        // ТАБЛИЦА С 5 СТОЛБЦАМИ
         if (ImGui::BeginTable("BaseTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY)) {
             ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 40.0f);
             ImGui::TableSetupColumn("Название (RU)");
@@ -210,15 +169,19 @@ int main(int argc, char *argv[]) {
             ImGui::TableSetupColumn("Род");
             ImGui::TableHeadersRow();
 
-            for (const auto& p : sortable_list_ru) {
-                FlowerBase& fb = base_map[p->weight];
+            // Итерируемся по sortable_list, чтобы соблюдать порядок сортировки
+            for (const auto& p : sortable_list) {
+                FlowerBase& fb = base_map[p->weight]; // Достаем полные данные из карты по ID
+
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
+                
                 char label[32]; sprintf(label, "%d", fb.id);
                 if (ImGui::Selectable(label, selected_flower.id == fb.id, ImGuiSelectableFlags_SpanAllColumns)) {
                     selected_flower = GetFullDetails(fb.id);
                     show_details = true;
                 }
+
                 ImGui::TableSetColumnIndex(1); ImGui::Text("%s", fb.name_ru.c_str());
                 ImGui::TableSetColumnIndex(2); ImGui::Text("%s", fb.name_latin.c_str());
                 ImGui::TableSetColumnIndex(3); ImGui::Text("%s", fb.family.c_str());
@@ -228,6 +191,7 @@ int main(int argc, char *argv[]) {
         }
         ImGui::End();
 
+        // --- ОКНО ДЕТАЛЕЙ ---
         if (show_details) {
             ImGui::Begin("Подробная информация", &show_details, ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::TextColored(ImVec4(0.4f, 0.7f, 1.0f, 1.0f), "ОСНОВНЫЕ ДАННЫЕ");
@@ -241,30 +205,10 @@ int main(int argc, char *argv[]) {
             ImGui::Spacing();
             ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.4f, 1.0f), "ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ");
             ImGui::Separator();
+            ImGui::Text("Температура: %.1f - %.1f C", selected_flower.temp_min, selected_flower.temp_max);
+            ImGui::Text("PH: %.1f - %.1f", selected_flower.ph_min, selected_flower.ph_max);
+            ImGui::Text("Влажность: %d%%", selected_flower.humidity);
             
-            if (ImGui::BeginTable("TechTable", 2, ImGuiTableFlags_NoBordersInBody)) {
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0); ImGui::Text("Температура:");
-                ImGui::TableSetColumnIndex(1); ImGui::Text("%.1f ... %.1f C", selected_flower.temp_min, selected_flower.temp_max);
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0); ImGui::Text("Кислотность (PH):");
-                ImGui::TableSetColumnIndex(1); ImGui::Text("%.1f ... %.1f", selected_flower.ph_min, selected_flower.ph_max);
-
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0); ImGui::Text("Влажность:");
-                ImGui::TableSetColumnIndex(1); ImGui::Text("%d %%", selected_flower.humidity);
-                
-                ImGui::EndTable();
-            }
-
-            if (!selected_flower.user_notes.empty()) {
-                ImGui::Separator();
-                ImGui::Text("Заметки:");
-                ImGui::TextWrapped("%s", selected_flower.user_notes.c_str());
-            }
-
-            ImGui::Spacing();
             if (ImGui::Button("Закрыть", ImVec2(120, 0))) show_details = false;
             ImGui::End();
         }
@@ -277,8 +221,12 @@ int main(int argc, char *argv[]) {
         SDL_GL_SwapWindow(window);
     }
 
-    ClearAllData();
-    ImGui_ImplOpenGL3_Shutdown(); ImGui_ImplSDL2_Shutdown(); ImGui::DestroyContext();
-    SDL_GL_DeleteContext(gl_context); SDL_DestroyWindow(window); SDL_Quit();
+    ClearSortable();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+    SDL_GL_DeleteContext(gl_context);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
     return 0;
 }

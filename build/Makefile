@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/home/durkaguti/Рабочий стол/ArhVM/ForBd"
+CMAKE_SOURCE_DIR = /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/home/durkaguti/Рабочий стол/ArhVM/ForBd/build"
+CMAKE_BINARY_DIR = /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/durkaguti/Рабочий стол/ArhVM/ForBd/build/CMakeFiles" "/home/durkaguti/Рабочий стол/ArhVM/ForBd/build//CMakeFiles/progress.marks"
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/build/CMakeFiles /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/durkaguti/Рабочий стол/ArhVM/ForBd/build/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -155,6 +155,30 @@ main/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
 .PHONY : main/fast
 
+src/dop_tree.o: src/dop_tree.cpp.o
+.PHONY : src/dop_tree.o
+
+# target to build an object file
+src/dop_tree.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/dop_tree.cpp.o
+.PHONY : src/dop_tree.cpp.o
+
+src/dop_tree.i: src/dop_tree.cpp.i
+.PHONY : src/dop_tree.i
+
+# target to preprocess a source file
+src/dop_tree.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/dop_tree.cpp.i
+.PHONY : src/dop_tree.cpp.i
+
+src/dop_tree.s: src/dop_tree.cpp.s
+.PHONY : src/dop_tree.s
+
+# target to generate assembly for a file
+src/dop_tree.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/dop_tree.cpp.s
+.PHONY : src/dop_tree.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -178,6 +202,30 @@ src/main.s: src/main.cpp.s
 src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
+
+src/sort_search.o: src/sort_search.cpp.o
+.PHONY : src/sort_search.o
+
+# target to build an object file
+src/sort_search.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/sort_search.cpp.o
+.PHONY : src/sort_search.cpp.o
+
+src/sort_search.i: src/sort_search.cpp.i
+.PHONY : src/sort_search.i
+
+# target to preprocess a source file
+src/sort_search.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/sort_search.cpp.i
+.PHONY : src/sort_search.cpp.i
+
+src/sort_search.s: src/sort_search.cpp.s
+.PHONY : src/sort_search.s
+
+# target to generate assembly for a file
+src/sort_search.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/sort_search.cpp.s
+.PHONY : src/sort_search.cpp.s
 
 third_party/imgui/backends/imgui_impl_opengl3.o: third_party/imgui/backends/imgui_impl_opengl3.cpp.o
 .PHONY : third_party/imgui/backends/imgui_impl_opengl3.o
@@ -430,9 +478,15 @@ help:
 	@echo "... imgui"
 	@echo "... implot"
 	@echo "... main"
+	@echo "... src/dop_tree.o"
+	@echo "... src/dop_tree.i"
+	@echo "... src/dop_tree.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/sort_search.o"
+	@echo "... src/sort_search.i"
+	@echo "... src/sort_search.s"
 	@echo "... third_party/imgui/backends/imgui_impl_opengl3.o"
 	@echo "... third_party/imgui/backends/imgui_impl_opengl3.i"
 	@echo "... third_party/imgui/backends/imgui_impl_opengl3.s"

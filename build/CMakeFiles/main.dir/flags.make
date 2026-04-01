@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I"/home/durkaguti/Рабочий стол/ArhVM/ForBd/include" -I"/home/durkaguti/Рабочий стол/ArhVM/ForBd/third_party/imgui" -I"/home/durkaguti/Рабочий стол/ArhVM/ForBd/third_party/implot" -isystem /usr/include/SDL2
+CXX_INCLUDES = -I/mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/include -I/usr/include/postgresql -I/mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/third_party/imgui -I/mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/third_party/imgui/backends -I/mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/third_party/implot -isystem /usr/include/SDL2
 
 CXX_FLAGS = -std=gnu++17
 

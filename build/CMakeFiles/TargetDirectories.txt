@@ -1,5 +1,5 @@
-/home/durkaguti/Рабочий стол/ArhVM/ForBd/build/CMakeFiles/imgui.dir
-/home/durkaguti/Рабочий стол/ArhVM/ForBd/build/CMakeFiles/implot.dir
-/home/durkaguti/Рабочий стол/ArhVM/ForBd/build/CMakeFiles/main.dir
-/home/durkaguti/Рабочий стол/ArhVM/ForBd/build/CMakeFiles/edit_cache.dir
-/home/durkaguti/Рабочий стол/ArhVM/ForBd/build/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/build/CMakeFiles/imgui.dir
+/mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/build/CMakeFiles/implot.dir
+/mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/build/CMakeFiles/main.dir
+/mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/build/CMakeFiles/rebuild_cache.dir
