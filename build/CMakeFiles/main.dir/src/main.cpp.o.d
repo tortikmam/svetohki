@@ -404,4 +404,13 @@ CMakeFiles/main.dir/src/main.cpp.o: \
  /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/third_party/imgui/imconfig.h \
  /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/third_party/imgui/backends/imgui_impl_sdl2.h \
  /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/src/sort_search.h \
- /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/src/dop_tree.h
+ /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/src/dop_tree.h \
+ /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/src/stb_image.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h \
+ /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/local_lim.h \
+ /usr/include/linux/limits.h \
+ /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/uio_lim.h

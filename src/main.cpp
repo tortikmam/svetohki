@@ -13,7 +13,38 @@
 #include "sort_search.h"
 #include "dop_tree.h"
 
+// Подключаем библиотеку для загрузки изображений
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 using namespace std;
+
+// Глобальный вектор для хранения текстур текущего выбранного растения
+vector<GLuint> current_textures;
+
+// Функция для загрузки текстуры в OpenGL
+GLuint LoadTextureFromFile(const char* filename) {
+    int width, height, channels;
+    unsigned char* data = stbi_load(filename, &width, &height, &channels, 4);
+    if (data == NULL) return 0;
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    stbi_image_free(data);
+    return texture;
+}
+
+// Очистка старых текстур
+void ClearCurrentTextures() {
+    if (!current_textures.empty()) {
+        glDeleteTextures(current_textures.size(), current_textures.data());
+        current_textures.clear();
+    }
+}
 
 struct FlowerBase {
     int id;
@@ -21,6 +52,7 @@ struct FlowerBase {
     string name_latin;
     string family;
     string genus;
+    string image_url; // Добавили поле для картинок
 };
 
 struct FlowerFull : FlowerBase {
@@ -52,6 +84,7 @@ void ClearAllData() {
         global_dop_root = nullptr;
     }
     base_map.clear();
+    ClearCurrentTextures(); // Очищаем и текстуры
 }
 
 void SyncData() {
@@ -65,7 +98,7 @@ void SyncData() {
         p_ru->weight = fb.id;
         sortable_list_ru.push_back(p_ru);
 
-        // Данные для дерева kладем латынь в name_ru для корректной работы
+        // Данные для дерева кладем латынь в name_ru для корректной работы
         PlantData* p_lat = new PlantData();
         p_lat->name_ru = fb.name_latin;
         p_lat->weight = fb.id; 
@@ -82,7 +115,8 @@ void LoadBaseList(vector<FlowerBase>& out_list) {
     try {
         pqxx::connection c("host=127.0.0.1 port=5433 dbname=flowers_db user=myuser password=mypassword");
         pqxx::work txn(c);
-        pqxx::result r = txn.exec("SELECT id, name_ru, name_latin, family, genus FROM flowers_base ORDER BY id");
+        // Добавили image_url в запрос
+        pqxx::result r = txn.exec("SELECT id, name_ru, name_latin, family, genus, image_url FROM flowers_base ORDER BY id");
         out_list.clear();
         for (auto row : r) {
             out_list.push_back({
@@ -90,7 +124,8 @@ void LoadBaseList(vector<FlowerBase>& out_list) {
                 row["name_ru"].is_null() ? "---" : row["name_ru"].c_str(),
                 row["name_latin"].c_str(),
                 row["family"].is_null() ? "---" : row["family"].c_str(),
-                row["genus"].is_null() ? "---" : row["genus"].c_str()
+                row["genus"].is_null() ? "---" : row["genus"].c_str(),
+                row["image_url"].is_null() ? "" : row["image_url"].c_str()
             });
         }
         SyncData();
@@ -110,6 +145,7 @@ FlowerFull GetFullDetails(int id) {
         f.name_latin = row["name_latin"].c_str();
         f.family = row["family"].is_null() ? "---" : row["family"].c_str();
         f.genus = row["genus"].is_null() ? "---" : row["genus"].c_str();
+        f.image_url = row["image_url"].is_null() ? "" : row["image_url"].c_str();
         f.created_at = row["created_at"].c_str();
         f.temp_min = row["temp_min_c"].as<float>(0.0f);
         f.temp_max = row["temp_max_c"].as<float>(0.0f);
@@ -119,6 +155,16 @@ FlowerFull GetFullDetails(int id) {
         f.humidity = row["humidity"].as<int>(0);
         f.toxicity = row["toxicity"].is_null() ? "Нет" : row["toxicity"].c_str();
         f.user_notes = row["user_notes"].is_null() ? "" : row["user_notes"].c_str();
+
+        // ЗАГРУЗКА КАРТИНКИ: Загружаем один раз при получении деталей
+        ClearCurrentTextures();
+        if (!f.image_url.empty()) {
+            for (int i = 1; i <= 3; ++i) {
+                string full_path = ".." + f.image_url + to_string(i) + ".jpg";
+                GLuint tid = LoadTextureFromFile(full_path.c_str());
+                if (tid != 0) current_textures.push_back(tid);
+            }
+        }
     } catch (...) {}
     return f;
 }
@@ -264,8 +310,22 @@ int main(int argc, char *argv[]) {
                 ImGui::TextWrapped("%s", selected_flower.user_notes.c_str());
             }
 
+            // БЛОК КАРТИНОК
+            if (!current_textures.empty()) {
+                ImGui::Spacing();
+                ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "ФОТОГРАФИИ");
+                ImGui::Separator();
+                for (size_t i = 0; i < current_textures.size(); ++i) {
+                    ImGui::Image((void*)(intptr_t)current_textures[i], ImVec2(250, 250));
+                    if (i < current_textures.size() - 1) ImGui::SameLine();
+                }
+            }
+
             ImGui::Spacing();
-            if (ImGui::Button("Закрыть", ImVec2(120, 0))) show_details = false;
+            if (ImGui::Button("Закрыть", ImVec2(120, 0))) {
+                show_details = false;
+                ClearCurrentTextures();
+            }
             ImGui::End();
         }
 

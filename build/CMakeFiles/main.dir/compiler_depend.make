@@ -149,7 +149,9 @@ CMakeFiles/main.dir/src/dop_tree.cpp.o: /mnt/c/Users/Vladimir/Desktop/ДляПр
   /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h
 
 CMakeFiles/main.dir/src/main.cpp.o: /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/src/main.cpp \
+  /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/src/dop_tree.h \
   /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/src/sort_search.h \
+  /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/src/stb_image.h \
   /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/third_party/imgui/backends/imgui_impl_opengl3.h \
   /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/third_party/imgui/backends/imgui_impl_sdl2.h \
   /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/third_party/imgui/imconfig.h \
@@ -403,7 +405,9 @@ CMakeFiles/main.dir/src/main.cpp.o: /mnt/c/Users/Vladimir/Desktop/ДляПрог
   /usr/include/features.h \
   /usr/include/inttypes.h \
   /usr/include/libintl.h \
+  /usr/include/limits.h \
   /usr/include/linux/errno.h \
+  /usr/include/linux/limits.h \
   /usr/include/locale.h \
   /usr/include/math.h \
   /usr/include/pqxx/array.hxx \
@@ -490,12 +494,15 @@ CMakeFiles/main.dir/src/main.cpp.o: /mnt/c/Users/Vladimir/Desktop/ДляПрог
   /usr/include/x86_64-linux-gnu/bits/iscanonical.h \
   /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
   /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
+  /usr/include/x86_64-linux-gnu/bits/local_lim.h \
   /usr/include/x86_64-linux-gnu/bits/locale.h \
   /usr/include/x86_64-linux-gnu/bits/long-double.h \
   /usr/include/x86_64-linux-gnu/bits/math-vector.h \
   /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
   /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h \
   /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
+  /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
+  /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
   /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h \
   /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h \
   /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h \
@@ -541,11 +548,13 @@ CMakeFiles/main.dir/src/main.cpp.o: /mnt/c/Users/Vladimir/Desktop/ДляПрог
   /usr/include/x86_64-linux-gnu/bits/types/wint_t.h \
   /usr/include/x86_64-linux-gnu/bits/typesizes.h \
   /usr/include/x86_64-linux-gnu/bits/uintn-identity.h \
+  /usr/include/x86_64-linux-gnu/bits/uio_lim.h \
   /usr/include/x86_64-linux-gnu/bits/waitflags.h \
   /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
   /usr/include/x86_64-linux-gnu/bits/wchar.h \
   /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h \
   /usr/include/x86_64-linux-gnu/bits/wordsize.h \
+  /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/atomic_word.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/c++allocator.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
@@ -624,6 +633,7 @@ CMakeFiles/main.dir/src/main.cpp.o: /mnt/c/Users/Vladimir/Desktop/ДляПрог
   /usr/lib/gcc/x86_64-linux-gnu/13/include/ia32intrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/immintrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/keylockerintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/lwpintrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/lzcntintrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/mm_malloc.h \
@@ -647,6 +657,7 @@ CMakeFiles/main.dir/src/main.cpp.o: /mnt/c/Users/Vladimir/Desktop/ДляПрог
   /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h \
+  /usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/tbmintrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/tmmintrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/tsxldtrkintrin.h \
@@ -999,6 +1010,8 @@ CMakeFiles/main.dir/src/sort_search.cpp.o: /mnt/c/Users/Vladimir/Desktop/Для�
 
 /usr/include/pqxx/internal/libpq-forward.hxx:
 
+/usr/include/x86_64-linux-gnu/bits/local_lim.h:
+
 /usr/include/pqxx/internal/header-pre.hxx:
 
 /usr/include/pqxx/internal/gates/connection-stream_from.hxx:
@@ -1047,6 +1060,8 @@ CMakeFiles/main.dir/src/sort_search.cpp.o: /mnt/c/Users/Vladimir/Desktop/Для�
 
 /usr/include/c++/13/tr1/poly_hermite.tcc:
 
+/usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h:
+
 /usr/lib/gcc/x86_64-linux-gnu/13/include/avx512pfintrin.h:
 
 /usr/include/c++/13/tr1/modified_bessel_func.tcc:
@@ -1073,7 +1088,11 @@ CMakeFiles/main.dir/src/sort_search.cpp.o: /mnt/c/Users/Vladimir/Desktop/Для�
 
 /usr/include/c++/13/stdexcept:
 
+/usr/include/linux/limits.h:
+
 /usr/include/c++/13/ratio:
+
+/usr/include/x86_64-linux-gnu/bits/posix1_lim.h:
 
 /usr/include/c++/13/pstl/glue_numeric_defs.h:
 
@@ -1147,9 +1166,13 @@ CMakeFiles/main.dir/src/sort_search.cpp.o: /mnt/c/Users/Vladimir/Desktop/Для�
 
 /usr/include/c++/13/bits/streambuf_iterator.h:
 
+/usr/include/x86_64-linux-gnu/bits/uio_lim.h:
+
 /usr/include/pqxx/version.hxx:
 
 /usr/include/c++/13/bits/stream_iterator.h:
+
+/usr/include/c++/13/bits/stl_tempbuf.h:
 
 /usr/include/x86_64-linux-gnu/asm/errno.h:
 
@@ -1170,6 +1193,8 @@ CMakeFiles/main.dir/src/sort_search.cpp.o: /mnt/c/Users/Vladimir/Desktop/Для�
 /usr/include/SDL2/SDL_surface.h:
 
 /usr/include/c++/13/bits/stl_raw_storage_iter.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
 
@@ -1350,6 +1375,8 @@ CMakeFiles/main.dir/src/sort_search.cpp.o: /mnt/c/Users/Vladimir/Desktop/Для�
 /usr/include/c++/13/bits/predefined_ops.h:
 
 /usr/include/pqxx/pipeline.hxx:
+
+/usr/include/limits.h:
 
 /usr/include/c++/13/tr1/bessel_function.tcc:
 
@@ -1621,6 +1648,10 @@ CMakeFiles/main.dir/src/sort_search.cpp.o: /mnt/c/Users/Vladimir/Desktop/Для�
 
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h:
 
+/usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
+
+/mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/src/stb_image.h:
+
 /mnt/c/Users/Vladimir/Desktop/ДляПрограмм/ArxBd/third_party/imgui/backends/imgui_impl_sdl2.h:
 
 /usr/include/c++/13/bits/functional_hash.h:
@@ -1779,6 +1810,8 @@ CMakeFiles/main.dir/src/sort_search.cpp.o: /mnt/c/Users/Vladimir/Desktop/Для�
 
 /usr/include/c++/13/bits/cxxabi_init_exception.h:
 
+/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
+
 /usr/include/pqxx/transaction_focus.hxx:
 
 /usr/include/c++/13/bits/enable_special_members.h:
@@ -1852,5 +1885,3 @@ CMakeFiles/main.dir/src/sort_search.cpp.o: /mnt/c/Users/Vladimir/Desktop/Для�
 /usr/include/c++/13/utility:
 
 /usr/include/c++/13/bits/stl_heap.h:
-
-/usr/include/c++/13/bits/stl_tempbuf.h:

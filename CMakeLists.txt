@@ -59,6 +59,7 @@ add_executable(main
 # Указываем инклуды для main
 target_include_directories(main PRIVATE 
     ${INCLUDE_DIR}
+    ${SRC_DIR}
     ${SDL2_INCLUDE_DIRS}
     ${PostgreSQL_INCLUDE_DIRS}
     ${PQXX_INCLUDE_DIRS}
@@ -75,4 +76,5 @@ target_link_libraries(main PRIVATE
     ${GLEW_LIBRARIES}
     pthread
     dl
+    m
 )
