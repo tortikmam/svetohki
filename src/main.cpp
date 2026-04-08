@@ -177,16 +177,16 @@ void AddFlowerToDB(const FlowerFull& f) {
         pqxx::connection c("host=127.0.0.1 port=5433 dbname=flowers_db user=myuser password=mypassword");
         pqxx::work txn(c);
 
-        // УБРАЛИ trefle_id из списка колонок и из VALUES
+        // УБРАЛИ image_url из колонок и один параметр $6
         pqxx::result res = txn.exec_params(
-            "INSERT INTO flowers_base (name_ru, nazvanie, name_latin, family, genus, image_url) "
-            "VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-            f.name_ru, f.nazvanie, f.name_latin, f.family, f.genus, f.image_url
+            "INSERT INTO flowers_base (name_ru, nazvanie, name_latin, family, genus) "
+            "VALUES ($1, $2, $3, $4, $5) RETURNING id",
+            f.name_ru, f.nazvanie, f.name_latin, f.family, f.genus
         );
         
         int new_id = res[0][0].as<int>();
 
-        // Техническая таблица остается без изменений
+        // Вставка в техническую таблицу остается без изменений
         txn.exec_params(
             "INSERT INTO flowers_technical (flower_id, temp_min_c, temp_max_c, ph_min, ph_max, light_level, humidity, toxicity, user_notes) "
             "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
@@ -194,7 +194,7 @@ void AddFlowerToDB(const FlowerFull& f) {
         );
 
         txn.commit();
-        std::cout << "Запись добавлена!" << std::endl;
+        std::cout << "Запись добавлена (без фото)!" << std::endl;
     } catch (const std::exception &e) { std::cerr << "DB Error: " << e.what() << std::endl; }
 }
 
@@ -264,12 +264,12 @@ int main(int argc, char *argv[]) {
         
         ImGui::Separator();
         ImGui::Text("1. МАССИВ (RU)");
-        if (ImGui::Button("QuickSort по RU")) {
+        if (ImGui::Button("QuickSort по EN")) {
             if (!sortable_list_ru.empty())
                 quickSort(sortable_list_ru, 0, sortable_list_ru.size() - 1, cmpByNameRU);
         }
-        ImGui::InputText("Имя (RU)", search_ru, IM_ARRAYSIZE(search_ru));
-        if (ImGui::Button("BinarySearch RU")) {
+        ImGui::InputText("Имя", search_ru, IM_ARRAYSIZE(search_ru));
+        if (ImGui::Button("BinarySearch")) {
             quickSort(sortable_list_ru, 0, sortable_list_ru.size() - 1, cmpByNameRU);
             int idx = binarySearch(sortable_list_ru, search_ru);
             if (idx != -1) {
@@ -414,7 +414,6 @@ int main(int argc, char *argv[]) {
             ImGui::InputText("Латынь", b_lat, 128);
             ImGui::InputText("Семейство", b_fam, 128);
             ImGui::InputText("Род", b_gen, 128);
-            ImGui::InputText("URL картинки", b_img, 256);
 
             ImGui::Separator();
             ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.4f, 1.0f), "Технические данные");
@@ -434,7 +433,6 @@ int main(int argc, char *argv[]) {
                 new_entry.name_latin = b_lat;
                 new_entry.family = b_fam;
                 new_entry.genus = b_gen;
-                new_entry.image_url = b_img;
                 new_entry.toxicity = b_tox;
                 new_entry.user_notes = b_notes;
 
