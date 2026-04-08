@@ -194,7 +194,6 @@ void AddFlowerToDB(const FlowerFull& f) {
         );
 
         txn.commit();
-        std::cout << "Запись добавлена (без фото)!" << std::endl;
     } catch (const std::exception &e) { std::cerr << "DB Error: " << e.what() << std::endl; }
 }
 
@@ -263,7 +262,6 @@ int main(int argc, char *argv[]) {
         if (ImGui::Button("Обновить данные")) LoadBaseList(base_list);
         
         ImGui::Separator();
-        ImGui::Text("1. МАССИВ (RU)");
         if (ImGui::Button("QuickSort по EN")) {
             if (!sortable_list_ru.empty())
                 quickSort(sortable_list_ru, 0, sortable_list_ru.size() - 1, cmpByNameRU);
@@ -308,8 +306,8 @@ int main(int argc, char *argv[]) {
         ImGui::Begin("Реестр растений");
         if (ImGui::BeginTable("BaseTable", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY)) {
             ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 40.0f);
-            ImGui::TableSetupColumn("Название(En)");
-            ImGui::TableSetupColumn("Название (Ru)");
+            ImGui::TableSetupColumn("Название(Ru)");
+            ImGui::TableSetupColumn("Название (En)");
             ImGui::TableSetupColumn("Латынь");
             ImGui::TableSetupColumn("Семейство");
             ImGui::TableSetupColumn("Род");
