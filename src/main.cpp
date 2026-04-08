@@ -49,6 +49,7 @@ void ClearCurrentTextures() {
 struct FlowerBase {
     int id;
     string name_ru;
+    string nazvanie;
     string name_latin;
     string family;
     string genus;
@@ -116,12 +117,13 @@ void LoadBaseList(vector<FlowerBase>& out_list) {
         pqxx::connection c("host=127.0.0.1 port=5433 dbname=flowers_db user=myuser password=mypassword");
         pqxx::work txn(c);
         // Добавили image_url в запрос
-        pqxx::result r = txn.exec("SELECT id, name_ru, name_latin, family, genus, image_url FROM flowers_base ORDER BY id");
+        pqxx::result r = txn.exec("SELECT id, name_ru, nazvanie, name_latin, family, genus, image_url FROM flowers_base ORDER BY id");
         out_list.clear();
         for (auto row : r) {
             out_list.push_back({
                 row["id"].as<int>(),
                 row["name_ru"].is_null() ? "---" : row["name_ru"].c_str(),
+                row["nazvanie"].is_null() ? "---" : row["nazvanie"].c_str(),
                 row["name_latin"].c_str(),
                 row["family"].is_null() ? "---" : row["family"].c_str(),
                 row["genus"].is_null() ? "---" : row["genus"].c_str(),
@@ -141,6 +143,7 @@ FlowerFull GetFullDetails(int id) {
                           "FROM flowers_base b LEFT JOIN flowers_technical t ON b.id = t.flower_id WHERE b.id = " + to_string(id);
         pqxx::row row = txn.exec1(sql);
         f.id = row["id"].as<int>();
+        f.nazvanie = row["nazvanie"].is_null() ? "---" : row["nazvanie"].c_str();
         f.name_ru = row["name_ru"].is_null() ? "---" : row["name_ru"].c_str();
         f.name_latin = row["name_latin"].c_str();
         f.family = row["family"].is_null() ? "---" : row["family"].c_str();
@@ -169,6 +172,47 @@ FlowerFull GetFullDetails(int id) {
     return f;
 }
 
+void AddFlowerToDB(const FlowerFull& f) {
+    try {
+        pqxx::connection c("host=127.0.0.1 port=5433 dbname=flowers_db user=myuser password=mypassword");
+        pqxx::work txn(c);
+
+        // УБРАЛИ trefle_id из списка колонок и из VALUES
+        pqxx::result res = txn.exec_params(
+            "INSERT INTO flowers_base (name_ru, nazvanie, name_latin, family, genus, image_url) "
+            "VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+            f.name_ru, f.nazvanie, f.name_latin, f.family, f.genus, f.image_url
+        );
+        
+        int new_id = res[0][0].as<int>();
+
+        // Техническая таблица остается без изменений
+        txn.exec_params(
+            "INSERT INTO flowers_technical (flower_id, temp_min_c, temp_max_c, ph_min, ph_max, light_level, humidity, toxicity, user_notes) "
+            "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+            new_id, f.temp_min, f.temp_max, f.ph_min, f.ph_max, f.light_level, f.humidity, f.toxicity, f.user_notes
+        );
+
+        txn.commit();
+        std::cout << "Запись добавлена!" << std::endl;
+    } catch (const std::exception &e) { std::cerr << "DB Error: " << e.what() << std::endl; }
+}
+
+void DeleteFlowerFromDB(int id) {
+    try {
+        pqxx::connection c("host=127.0.0.1 port=5433 dbname=flowers_db user=myuser password=mypassword");
+        pqxx::work txn(c);
+
+        // Удаляем из главной таблицы, техническая удалится сама
+        txn.exec_params("DELETE FROM flowers_base WHERE id = $1", id);
+        
+        txn.commit();
+        std::cout << "Запись ID " << id << " удалена." << std::endl;
+    } catch (const std::exception &e) {
+        std::cerr << "Ошибка удаления: " << e.what() << std::endl;
+    }
+}
+
 int main(int argc, char *argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) return -1;
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
@@ -194,6 +238,14 @@ int main(int argc, char *argv[]) {
     char search_lat[128] = "";
 
     LoadBaseList(base_list);
+
+    bool show_add_window = false;
+    bool show_delete_confirm = false;
+    FlowerFull new_entry; // временный объект для сбора данных
+
+// Буферы для ввода (ImGui работает с массивами char)
+    char b_trefle[32] = "", b_ru[128] = "", b_en[128] = "", b_lat[128] = "";
+    char b_fam[128] = "", b_gen[128] = "", b_img[256] = "", b_tox[64] = "", b_notes[512] = "";
 
     while (running) {
         SDL_Event event;
@@ -248,13 +300,16 @@ int main(int argc, char *argv[]) {
         if (global_dop_root) ImGui::TextColored(ImVec4(0, 1, 0, 1), "Дерево активно");
         else ImGui::TextColored(ImVec4(1, 1, 0, 1), "Дерево не построено");
 
+        if (ImGui::Button("Добавить запись", ImVec2(-1, 0))) show_add_window = true;
+
         ImGui::End();
 
         // база
         ImGui::Begin("Реестр растений");
-        if (ImGui::BeginTable("BaseTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY)) {
+        if (ImGui::BeginTable("BaseTable", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY)) {
             ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 40.0f);
-            ImGui::TableSetupColumn("Название (RU)");
+            ImGui::TableSetupColumn("Название(En)");
+            ImGui::TableSetupColumn("Название (Ru)");
             ImGui::TableSetupColumn("Латынь");
             ImGui::TableSetupColumn("Семейство");
             ImGui::TableSetupColumn("Род");
@@ -269,10 +324,11 @@ int main(int argc, char *argv[]) {
                     selected_flower = GetFullDetails(fb.id);
                     show_details = true;
                 }
-                ImGui::TableSetColumnIndex(1); ImGui::Text("%s", fb.name_ru.c_str());
-                ImGui::TableSetColumnIndex(2); ImGui::Text("%s", fb.name_latin.c_str());
-                ImGui::TableSetColumnIndex(3); ImGui::Text("%s", fb.family.c_str());
-                ImGui::TableSetColumnIndex(4); ImGui::Text("%s", fb.genus.c_str());
+                ImGui::TableSetColumnIndex(1); ImGui::Text("%s", fb.nazvanie.c_str());
+                ImGui::TableSetColumnIndex(2); ImGui::Text("%s", fb.name_ru.c_str());
+                ImGui::TableSetColumnIndex(3); ImGui::Text("%s", fb.name_latin.c_str());
+                ImGui::TableSetColumnIndex(4); ImGui::Text("%s", fb.family.c_str());
+                ImGui::TableSetColumnIndex(5); ImGui::Text("%s", fb.genus.c_str());
             }
             ImGui::EndTable();
         }
@@ -283,7 +339,8 @@ int main(int argc, char *argv[]) {
             ImGui::TextColored(ImVec4(0.4f, 0.7f, 1.0f, 1.0f), "ОСНОВНЫЕ ДАННЫЕ");
             ImGui::Separator();
             ImGui::Text("ID: %d", selected_flower.id);
-            ImGui::Text("Название (RU): %s", selected_flower.name_ru.c_str());
+            ImGui::Text("Название: %s", selected_flower.nazvanie.c_str());
+            ImGui::Text("Название (En): %s", selected_flower.name_ru.c_str());
             ImGui::Text("Название (Latin): %s", selected_flower.name_latin.c_str());
             ImGui::Text("Семейство: %s", selected_flower.family.c_str());
             ImGui::Text("Род: %s", selected_flower.genus.c_str());
@@ -330,6 +387,64 @@ int main(int argc, char *argv[]) {
                 show_details = false;
                 ClearCurrentTextures();
             }
+
+            ImGui::Separator();
+            // Сделаем кнопку красной для наглядности
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.1f, 0.15f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+
+            if (ImGui::Button("УДАЛИТЬ ЗАПИСЬ", ImVec2(-1, 0))) {
+                DeleteFlowerFromDB(selected_flower.id); // Удаляем из БД
+                LoadBaseList(base_list);              // Перезагружаем список в программе
+                show_details = false;                 // Закрываем окно удаленного растения
+                ClearCurrentTextures();               // Очищаем текстуры
+            }
+
+            ImGui::PopStyleColor(2); // Возвращаем обычные цвета кнопок
+
+            ImGui::End();
+        }
+
+        if (show_add_window) {
+            ImGui::Begin("Добавление растения", &show_add_window, ImGuiWindowFlags_AlwaysAutoResize);
+
+            ImGui::TextColored(ImVec4(0.4f, 0.7f, 1.0f, 1.0f), "Базовые данные");
+            ImGui::InputText("Название (En)", b_en, 128);
+            ImGui::InputText("Название (Ru)", b_ru, 128);
+            ImGui::InputText("Латынь", b_lat, 128);
+            ImGui::InputText("Семейство", b_fam, 128);
+            ImGui::InputText("Род", b_gen, 128);
+            ImGui::InputText("URL картинки", b_img, 256);
+
+            ImGui::Separator();
+            ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.4f, 1.0f), "Технические данные");
+            ImGui::InputFloat("Мин. Темп. C", &new_entry.temp_min);
+            ImGui::InputFloat("Макс. Темп. C", &new_entry.temp_max);
+            ImGui::InputFloat("Мин. PH", &new_entry.ph_min);
+            ImGui::InputFloat("Макс. PH", &new_entry.ph_max);
+            ImGui::InputInt("Свет (1-10)", &new_entry.light_level);
+            ImGui::InputInt("Влажность %", &new_entry.humidity);
+            ImGui::InputText("Токсичность", b_tox, 64);
+            ImGui::InputTextMultiline("Заметки", b_notes, 512);
+
+            if (ImGui::Button("Сохранить", ImVec2(120, 0))) {
+                // Копируем из буферов в структуру
+                new_entry.nazvanie = b_en;
+                new_entry.name_ru = b_ru;
+                new_entry.name_latin = b_lat;
+                new_entry.family = b_fam;
+                new_entry.genus = b_gen;
+                new_entry.image_url = b_img;
+                new_entry.toxicity = b_tox;
+                new_entry.user_notes = b_notes;
+
+                AddFlowerToDB(new_entry);
+                LoadBaseList(base_list); // Обновляем список в таблице
+                show_add_window = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Отмена")) show_add_window = false;
+
             ImGui::End();
         }
 
