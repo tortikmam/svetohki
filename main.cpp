@@ -77,7 +77,7 @@ int main() {
     json all_plants_array = json::array();
     
     int count = 0;
-    int targetCount = 60; 
+    int targetCount = 20; 
     int currentPage = 1;
 
     cout << "--- ЗАПУСК СТАБИЛЬНОГО СБОРА ---" << endl;

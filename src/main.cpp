@@ -52,7 +52,7 @@ struct FlowerBase {
     string name_latin;
     string family;
     string genus;
-    string image_url; // Добавили поле для картинок
+    string image_url;
 };
 
 struct FlowerFull : FlowerBase {
@@ -171,6 +171,10 @@ FlowerFull GetFullDetails(int id) {
 
 int main(int argc, char *argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) return -1;
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_Window* window = SDL_CreateWindow("Flower Database & Algorithms", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     glewInit();
@@ -178,10 +182,10 @@ int main(int argc, char *argv[]) {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.Fonts->AddFontFromFileTTF("/mnt/c/Windows/Fonts/arial.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesCyrillic());
+    io.Fonts->AddFontFromFileTTF("./fonts/arial.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesCyrillic());
     
     ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
-    ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui_ImplOpenGL3_Init("#version 150");
 
     FlowerFull selected_flower;
     bool show_details = false;
@@ -201,7 +205,7 @@ int main(int argc, char *argv[]) {
         ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplSDL2_NewFrame(); ImGui::NewFrame();
         ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_None);
 
-        // --- ОКНО УПРАВЛЕНИЯ ---
+        // управление
         ImGui::Begin("Алгоритмы и Поиск");
         
         if (ImGui::Button("Обновить данные")) LoadBaseList(base_list);
@@ -246,7 +250,7 @@ int main(int argc, char *argv[]) {
 
         ImGui::End();
 
-        // --- ОКНО СПИСКА (ТАБЛИЦА) ---
+        // база
         ImGui::Begin("Реестр растений");
         if (ImGui::BeginTable("BaseTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY)) {
             ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 40.0f);
@@ -310,7 +314,7 @@ int main(int argc, char *argv[]) {
                 ImGui::TextWrapped("%s", selected_flower.user_notes.c_str());
             }
 
-            // БЛОК КАРТИНОК
+            // картинки
             if (!current_textures.empty()) {
                 ImGui::Spacing();
                 ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "ФОТОГРАФИИ");

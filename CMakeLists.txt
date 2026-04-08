@@ -78,3 +78,13 @@ target_link_libraries(main PRIVATE
     dl
     m
 )
+
+add_custom_command(TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/fonts"
+        "$<TARGET_FILE_DIR:main>/fonts")
+
+add_custom_command(TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/pictures"
+        "$<TARGET_FILE_DIR:main>/pictures")

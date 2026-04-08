@@ -19,7 +19,7 @@ int main() {
         inFile >> all_plants;
         inFile.close();
 
-        pqxx::connection C("dbname=flowers_db user=myuser password=mypassword host=localhost port=5432");
+        pqxx::connection C("dbname=flowers_db user=myuser password=mypassword host=localhost port=5433");
         pqxx::work W(C);
 
         cout << "Connected to database. Processing " << all_plants.size() << " records..." << endl;
