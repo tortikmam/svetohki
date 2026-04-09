@@ -1,3 +1,8 @@
+Компиляция db_loader:
+```
+g++ db_loader.cpp -o db_loader -lpqxx -lpq
+```
+
 Первым делом откройте бд в VsCode и сделайте следующие запросы:
 
 ```
