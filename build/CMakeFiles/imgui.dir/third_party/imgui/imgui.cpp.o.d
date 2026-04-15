@@ -1,8 +1,8 @@
 CMakeFiles/imgui.dir/third_party/imgui/imgui.cpp.o: \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imgui.cpp \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imgui.cpp \
  /usr/include/stdc-predef.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imgui.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imconfig.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imgui.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imconfig.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/float.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h /usr/include/string.h \
@@ -17,7 +17,7 @@ CMakeFiles/imgui.dir/third_party/imgui/imgui.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h /usr/include/assert.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imgui_internal.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imgui_internal.h \
  /usr/include/stdio.h /usr/include/x86_64-linux-gnu/bits/types.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
  /usr/include/x86_64-linux-gnu/bits/time64.h \

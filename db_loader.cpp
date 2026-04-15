@@ -3,12 +3,14 @@
 #include <nlohmann/json.hpp>
 #include <pqxx/pqxx>
 #include <optional>
+#include <string>
 
 using namespace std;
 using json = nlohmann::json;
 
 int main() {
     try {
+        // 1. Чтение файла
         ifstream inFile("plants.json");
         if (!inFile.is_open()) {
             cerr << "Error: Could not open plants.json!" << endl;
@@ -19,11 +21,13 @@ int main() {
         inFile >> all_plants;
         inFile.close();
 
-        pqxx::connection C("dbname=flowers_db user=myuser password=mypassword host=localhost port=5433");
+        // 2. Подключение к БД (Порт 5432, как в твоем docker-compose)
+        pqxx::connection C("dbname=flowers_db user=myuser password=mypassword host=localhost port=5432");
         pqxx::work W(C);
 
         cout << "Connected to database. Processing " << all_plants.size() << " records..." << endl;
 
+        // 3. Подготовка запросов
         C.prepare("ins_base", 
             "INSERT INTO flowers_base (trefle_id, name_ru, name_latin, family, genus, image_url) "
             "VALUES ($1, $2, $3, $4, $5, $6) "
@@ -37,30 +41,41 @@ int main() {
             "ON CONFLICT (flower_id) DO UPDATE SET "
             "temp_min_c = EXCLUDED.temp_min_c, temp_max_c = EXCLUDED.temp_max_c");
 
+        // Лямбда-функции для обработки NULL значений
+        auto to_opt_double = [](const json& j) -> std::optional<double> {
+            return j.is_null() ? std::nullopt : std::optional<double>(j.get<double>());
+        };
+        auto to_opt_int = [](const json& j) -> std::optional<int> {
+            return j.is_null() ? std::nullopt : std::optional<int>(j.get<int>());
+        };
+        auto to_opt_str = [](const json& j) -> std::optional<string> {
+            return j.is_null() ? std::nullopt : std::optional<string>(j.get<string>());
+        };
+
         int imported = 0;
         for (const auto& p : all_plants) {
-            // Вставка в flowers_base
+            // Явное извлечение строк, чтобы избежать ошибки "invalid input syntax for type json"
+            string name_ru = p.value("name_ru", "");
+            string name_latin = p.value("name_latin", "Unknown");
+            string family = p.value("family", "");
+            string genus = p.value("genus", "");
+            string image_url = p.value("image_url", "");
+            string notes = p.value("user_notes", "");
+
+            // Вставка в основную таблицу
             pqxx::result res = W.exec_prepared("ins_base",
                 p.value("trefle_id", 0),
-                p.value("name_ru", ""),
-                p.value("name_latin", "Unknown"),
-                p.value("family", ""),
-                p.value("genus", ""),
-                p.value("image_url", "")
+                name_ru,
+                name_latin,
+                family,
+                genus,
+                image_url
             );
 
+            // Получение ID для связки таблиц
             int internal_id = res[0][0].as<int>();
 
-            auto to_opt_double = [](const json& j) -> std::optional<double> {
-                return j.is_null() ? std::nullopt : std::optional<double>(j.get<double>());
-            };
-            auto to_opt_int = [](const json& j) -> std::optional<int> {
-                return j.is_null() ? std::nullopt : std::optional<int>(j.get<int>());
-            };
-            auto to_opt_str = [](const json& j) -> std::optional<string> {
-                return j.is_null() ? std::nullopt : std::optional<string>(j.get<string>());
-            };
-
+            // Вставка в техническую таблицу
             W.exec_prepared("ins_tech",
                 internal_id,
                 to_opt_double(p["temp_min_c"]),
@@ -70,11 +85,14 @@ int main() {
                 to_opt_int(p["light_level"]),
                 to_opt_int(p["humidity"]),
                 to_opt_str(p["toxicity"]),
-                p.value("user_notes", "")
+                notes
             );
 
             imported++;
-            if (imported % 10 == 0) cout << "Imported " << imported << " plants..." << endl;
+            // Индикатор прогресса
+            if (imported % 10 == 0) {
+                cout << "Imported " << imported << " plants..." << endl;
+            }
         }
 
         W.commit();

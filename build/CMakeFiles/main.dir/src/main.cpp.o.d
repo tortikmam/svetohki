@@ -1,5 +1,5 @@
 CMakeFiles/main.dir/src/main.cpp.o: \
- /mnt/c/Users/Vladimir/Desktop/test/src/main.cpp \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/src/main.cpp \
  /usr/include/stdc-predef.h /usr/include/GL/glew.h \
  /usr/include/c++/13/cstddef \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
@@ -399,13 +399,13 @@ CMakeFiles/main.dir/src/main.cpp.o: \
  /usr/include/pqxx/subtransaction.hxx /usr/include/pqxx/time.hxx \
  /usr/include/c++/13/chrono /usr/include/pqxx/transactor.hxx \
  /usr/include/pqxx/internal/header-post.hxx /usr/include/c++/13/iostream \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/backends/imgui_impl_opengl3.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imgui.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imconfig.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/backends/imgui_impl_sdl2.h \
- /mnt/c/Users/Vladimir/Desktop/test/src/sort_search.h \
- /mnt/c/Users/Vladimir/Desktop/test/src/dop_tree.h \
- /mnt/c/Users/Vladimir/Desktop/test/src/stb_image.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/backends/imgui_impl_opengl3.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imgui.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imconfig.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/backends/imgui_impl_sdl2.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/src/sort_search.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/src/dop_tree.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/src/stb_image.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h \
  /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \

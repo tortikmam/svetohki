@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/mnt/c/Users/Vladimir/Desktop/test/third_party/imgui -I/mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/backends -I/usr/include/SDL2
+CXX_INCLUDES = -I"/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/imgui" -I"/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/imgui/backends" -I/usr/include/SDL2
 
 CXX_FLAGS = -std=gnu++17 -fPIC
 

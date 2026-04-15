@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /mnt/c/Users/Vladimir/Desktop/test
+CMAKE_SOURCE_DIR = "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki"
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /mnt/c/Users/Vladimir/Desktop/test/build
+CMAKE_BINARY_DIR = "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build"
 
 # Include any dependencies generated for this target.
 include CMakeFiles/implot.dir/depend.make
@@ -70,46 +70,46 @@ include CMakeFiles/implot.dir/progress.make
 include CMakeFiles/implot.dir/flags.make
 
 CMakeFiles/implot.dir/third_party/implot/implot.cpp.o: CMakeFiles/implot.dir/flags.make
-CMakeFiles/implot.dir/third_party/implot/implot.cpp.o: /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot.cpp
+CMakeFiles/implot.dir/third_party/implot/implot.cpp.o: /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/implot/implot.cpp
 CMakeFiles/implot.dir/third_party/implot/implot.cpp.o: CMakeFiles/implot.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Vladimir/Desktop/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/implot.dir/third_party/implot/implot.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/implot.dir/third_party/implot/implot.cpp.o -MF CMakeFiles/implot.dir/third_party/implot/implot.cpp.o.d -o CMakeFiles/implot.dir/third_party/implot/implot.cpp.o -c /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/implot.dir/third_party/implot/implot.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/implot.dir/third_party/implot/implot.cpp.o -MF CMakeFiles/implot.dir/third_party/implot/implot.cpp.o.d -o CMakeFiles/implot.dir/third_party/implot/implot.cpp.o -c "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/implot/implot.cpp"
 
 CMakeFiles/implot.dir/third_party/implot/implot.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/implot.dir/third_party/implot/implot.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot.cpp > CMakeFiles/implot.dir/third_party/implot/implot.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/implot/implot.cpp" > CMakeFiles/implot.dir/third_party/implot/implot.cpp.i
 
 CMakeFiles/implot.dir/third_party/implot/implot.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/implot.dir/third_party/implot/implot.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot.cpp -o CMakeFiles/implot.dir/third_party/implot/implot.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/implot/implot.cpp" -o CMakeFiles/implot.dir/third_party/implot/implot.cpp.s
 
 CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o: CMakeFiles/implot.dir/flags.make
-CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o: /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot_demo.cpp
+CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o: /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/implot/implot_demo.cpp
 CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o: CMakeFiles/implot.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Vladimir/Desktop/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o -MF CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o.d -o CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o -c /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot_demo.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o -MF CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o.d -o CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o -c "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/implot/implot_demo.cpp"
 
 CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot_demo.cpp > CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/implot/implot_demo.cpp" > CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.i
 
 CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot_demo.cpp -o CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/implot/implot_demo.cpp" -o CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.s
 
 CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o: CMakeFiles/implot.dir/flags.make
-CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o: /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot_items.cpp
+CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o: /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/implot/implot_items.cpp
 CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o: CMakeFiles/implot.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/Vladimir/Desktop/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o -MF CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o.d -o CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o -c /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot_items.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o -MF CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o.d -o CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o -c "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/implot/implot_items.cpp"
 
 CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot_items.cpp > CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/implot/implot_items.cpp" > CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.i
 
 CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/Vladimir/Desktop/test/third_party/implot/implot_items.cpp -o CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/third_party/implot/implot_items.cpp" -o CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.s
 
 # Object files for target implot
 implot_OBJECTS = \
@@ -125,7 +125,7 @@ libimplot.a: CMakeFiles/implot.dir/third_party/implot/implot_demo.cpp.o
 libimplot.a: CMakeFiles/implot.dir/third_party/implot/implot_items.cpp.o
 libimplot.a: CMakeFiles/implot.dir/build.make
 libimplot.a: CMakeFiles/implot.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/mnt/c/Users/Vladimir/Desktop/test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library libimplot.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library libimplot.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/implot.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/implot.dir/link.txt --verbose=$(VERBOSE)
 
@@ -138,6 +138,6 @@ CMakeFiles/implot.dir/clean:
 .PHONY : CMakeFiles/implot.dir/clean
 
 CMakeFiles/implot.dir/depend:
-	cd /mnt/c/Users/Vladimir/Desktop/test/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /mnt/c/Users/Vladimir/Desktop/test /mnt/c/Users/Vladimir/Desktop/test /mnt/c/Users/Vladimir/Desktop/test/build /mnt/c/Users/Vladimir/Desktop/test/build /mnt/c/Users/Vladimir/Desktop/test/build/CMakeFiles/implot.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki" "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki" "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build" "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build" "/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build/CMakeFiles/implot.dir/DependInfo.cmake" "--color=$(COLOR)"
 .PHONY : CMakeFiles/implot.dir/depend
 

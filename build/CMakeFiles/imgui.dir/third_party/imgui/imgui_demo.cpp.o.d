@@ -1,8 +1,8 @@
 CMakeFiles/imgui.dir/third_party/imgui/imgui_demo.cpp.o: \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imgui_demo.cpp \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imgui_demo.cpp \
  /usr/include/stdc-predef.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imgui.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imconfig.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imgui.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imconfig.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/float.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h /usr/include/string.h \

@@ -1,5 +1,5 @@
-/mnt/c/Users/Vladimir/Desktop/test/build/CMakeFiles/imgui.dir
-/mnt/c/Users/Vladimir/Desktop/test/build/CMakeFiles/implot.dir
-/mnt/c/Users/Vladimir/Desktop/test/build/CMakeFiles/main.dir
-/mnt/c/Users/Vladimir/Desktop/test/build/CMakeFiles/edit_cache.dir
-/mnt/c/Users/Vladimir/Desktop/test/build/CMakeFiles/rebuild_cache.dir
+/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build/CMakeFiles/imgui.dir
+/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build/CMakeFiles/implot.dir
+/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build/CMakeFiles/main.dir
+/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build/CMakeFiles/edit_cache.dir
+/home/durkaguti/Рабочий стол/fhifasdlkfsahj/svetohki/build/CMakeFiles/rebuild_cache.dir

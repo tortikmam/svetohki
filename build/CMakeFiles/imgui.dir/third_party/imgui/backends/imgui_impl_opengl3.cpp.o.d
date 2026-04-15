@@ -1,8 +1,8 @@
 CMakeFiles/imgui.dir/third_party/imgui/backends/imgui_impl_opengl3.cpp.o: \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/backends/imgui_impl_opengl3.cpp \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/backends/imgui_impl_opengl3.cpp \
  /usr/include/stdc-predef.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imgui.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/imconfig.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imgui.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/imconfig.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/float.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h /usr/include/string.h \
@@ -17,7 +17,7 @@ CMakeFiles/imgui.dir/third_party/imgui/backends/imgui_impl_opengl3.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h /usr/include/assert.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/backends/imgui_impl_opengl3.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/backends/imgui_impl_opengl3.h \
  /usr/include/stdio.h /usr/include/x86_64-linux-gnu/bits/types.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
  /usr/include/x86_64-linux-gnu/bits/time64.h \
@@ -36,7 +36,7 @@ CMakeFiles/imgui.dir/third_party/imgui/backends/imgui_impl_opengl3.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
- /mnt/c/Users/Vladimir/Desktop/test/third_party/imgui/backends/imgui_impl_opengl3_loader.h \
+ /home/durkaguti/Рабочий\ стол/fhifasdlkfsahj/svetohki/third_party/imgui/backends/imgui_impl_opengl3_loader.h \
  /usr/include/c++/13/stdlib.h /usr/include/c++/13/cstdlib \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \
